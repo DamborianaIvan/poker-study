@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BvB — Guía Completa</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #1a6b3c;
+    --green-mid: #2d9e5f;
+    --green-light: #e8f5ee;
+    --felt: #1e4d2b;
+    --gold: #c9a84c;
+    --gold-light: #f9f0dc;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --surface: #f9fafb;
+    --white: #ffffff;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: #f4f6f0;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* HEADER */
+  .hero {
+    background: var(--felt);
+    background-image: radial-gradient(circle at 20% 50%, #2a6e3f 0%, transparent 60%),
+                      radial-gradient(circle at 80% 20%, #163524 0%, transparent 50%);
+    color: white;
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      45deg, transparent, transparent 40px,
+      rgba(255,255,255,0.02) 40px, rgba(255,255,255,0.02) 41px
+    );
+  }
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero-sub {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 300;
+    margin-top: 0.5rem;
+  }
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    text-transform: uppercase;
+  }
+
+  /* NAV TABS */
+  .tab-nav {
+    display: flex;
+    background: var(--felt);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Sora', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.8); }
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 2.5rem;
+  }
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--green-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  h2.block-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.3px;
+  }
+  .block-desc {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--card-accent, var(--green));
+  }
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .card-body {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .card-body strong { color: var(--text); font-weight: 600; }
+
+  /* RANGE ACTION TABLE */
+  .range-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+  }
+  .range-table th {
+    background: var(--felt);
+    color: white;
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+  .range-table td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .range-table tr:last-child td { border-bottom: none; }
+  .range-table tr:nth-child(even) td { background: var(--surface); }
+
+  .action-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .tag-fold { background: #fee2e2; color: #991b1b; }
+  .tag-limp-fold { background: #fef3c7; color: #92400e; }
+  .tag-limp-call { background: #dcfce7; color: #166534; }
+  .tag-limp-raise { background: #dbeafe; color: #1e40af; }
+  .tag-or-fold { background: #f3e8ff; color: #6b21a8; }
+  .tag-or-call { background: #ecfdf5; color: #065f46; }
+  .tag-or-4bf { background: #fce7f3; color: #9d174d; }
+  .tag-or-4bc { background: #fef9c3; color: #713f12; }
+  .tag-3b-push { background: #fee2e2; color: #7f1d1d; }
+  .tag-3b-call { background: #e0e7ff; color: #3730a3; }
+  .tag-defend { background: #d1fae5; color: #064e3b; }
+  .tag-check { background: #f0fdf4; color: #166534; }
+  .tag-raise { background: #fef9c3; color: #78350f; }
+
+  /* HANDS */
+  .hands-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0.5rem 0;
+  }
+  .hand-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .hand-chip.suited { border-color: #93c5fd; background: #eff6ff; color: #1d4ed8; }
+  .hand-chip.offsuit { border-color: #fca5a5; background: #fef2f2; color: #b91c1c; }
+  .hand-chip.pair { border-color: #86efac; background: #f0fdf4; color: #166534; }
+
+  /* PRINCIPLES */
+  .principle {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--green);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .principle.warning { border-left-color: var(--gold); }
+  .principle.danger  { border-left-color: var(--red); }
+  .principle.info    { border-left-color: var(--blue); }
+  .principle-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.3rem;
+  }
+  .principle.warning .principle-label { color: #b45309; }
+  .principle.danger  .principle-label { color: var(--red); }
+  .principle.info    .principle-label { color: var(--blue); }
+  .principle-text {
+    font-size: 0.865rem;
+    color: var(--text);
+    line-height: 1.65;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+  }
+
+  /* THEORY BOX */
+  .theory-box {
+    background: var(--felt);
+    color: white;
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .theory-box h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .theory-box p, .theory-box li {
+    font-size: 0.855rem;
+    color: rgba(255,255,255,0.82);
+    line-height: 1.7;
+    margin-bottom: 0.4rem;
+  }
+  .theory-box ul { padding-left: 1.25rem; }
+  .theory-box strong { color: white; }
+
+  /* FREQUENCY BAR */
+  .freq-row { margin-bottom: 0.9rem; }
+  .freq-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .freq-label span { color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+  .freq-bar-track {
+    background: var(--border);
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .freq-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--bar-color, var(--green));
+  }
+
+  /* TWO COLS */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.8rem; }
+    .tab-btn { font-size: 0.75rem; padding: 0.75rem 0.5rem; }
+  }
+
+  /* INLINE MONO */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+
+  /* TOC */
+  .toc {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+  .toc ol {
+    padding-left: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem 1rem;
+  }
+  .toc li {
+    font-size: 0.84rem;
+    color: var(--green);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .toc li:hover { text-decoration: underline; }
+  @media (max-width: 600px) { .toc ol { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Guía de estrategia · Poker de torneo</div>
+  <h1>Blind vs <span>Blind</span></h1>
+  <p class="hero-sub">Estrategia completa desde SB y BB · 30–60BB deep</p>
+  <div class="badge-row">
+    <span class="badge">SB · 60BB</span>
+    <span class="badge">BB · 30BB</span>
+    <span class="badge">Preflop + Postflop</span>
+    <span class="badge">PKO</span>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('sb')">🔵 &nbsp;SB (60BB)</button>
+  <button class="tab-btn" onclick="switchTab('bb')">🔴 &nbsp;BB (30BB)</button>
+  <button class="tab-btn" onclick="switchTab('teoria')">📐 &nbsp;Teoría Avanzada</button>
+</div>
+
+<!-- ===================== TAB SB ===================== -->
+<div id="tab-sb" class="tab-content active">
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">Contenido — SB</div>
+    <ol>
+      <li>Filosofía general BvB desde SB</li>
+      <li>Árbol de decisiones preflop</li>
+      <li>Limp vs Open raise: cuándo elegir</li>
+      <li>Respuestas al 3-bet del BB</li>
+      <li>Ajustes vs perfiles de BB</li>
+      <li>Consideraciones PKO</li>
+    </ol>
+  </div>
+
+  <!-- FILOSOFIA -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>1 · Filosofía General</div>
+    <h2 class="block-title">BvB desde SB: Estrategia Agresiva</h2>
+    <p class="block-desc">El BvB es el spot más frecuente y más ignorado en torneos. La estrategia GTO pura limpa mucho, pero en entornos de torneo con stack de 60BB queremos maximizar EV jugando más agresivo y explotando las debilidades del BB.</p>
+
+    <div class="theory-box">
+      <h3>⚡ Principio clave</h3>
+      <p>GTO en BvB early/middle game tiene <strong>VPIP cercano a 100%</strong> desde SB — limpa casi todo su rango. Nosotros adoptamos una estrategia <strong>más agresiva con open raises</strong> porque los jugadores de torneo típicos no defienden óptimamente y el EV de foldar equity con un raise supera al EV de limpar.</p>
+      <p style="margin-top: 0.6rem;">La regla es simple: <strong>si tu mano vale algo, es candidata a open raise</strong>. Limpar queda reservado para manos con las que específicamente queremos controlar el pot o ejecutar limp-raise de trampa.</p>
+    </div>
+  </div>
+
+  <!-- ARBOL DE DECISIONES -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>2 · Árbol de Decisiones Preflop</div>
+    <h2 class="block-title">Las 8 acciones desde SB</h2>
+    <p class="block-desc">Cada mano que recibes entra en una de estas categorías. La clave es entender los bordes entre rangos para no mezclarlos.</p>
+
+    <table class="range-table">
+      <tr>
+        <th>Acción</th>
+        <th>Descripción &amp; lógica</th>
+        <th>Frecuencia aprox.</th>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-fold">FOLD</span></td>
+        <td>Bottom ~10% del rango. Manos sin equity ni playability. <strong>Contra rivales malos podés jugar VPIP 100</strong> — no foldear nada.</td>
+        <td>~10% (vs buenos)</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-limp-fold">LIMP-FOLD</span></td>
+        <td>Suficientemente buenas para invertir 0.5BB pero no para call. Si BB raise, abandonamos sin costo emocional. Manos especulativas débiles off-suit.</td>
+        <td>~10–15%</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-limp-call">LIMP-CALL</span></td>
+        <td>Manos demasiado buenas para OR+fold, pero no suficientes para OR+call al 3-bet. Especulativas medias, suited connectors, manos de playability.</td>
+        <td>~15–20%</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-limp-raise">LIMP-RAISE</span></td>
+        <td><strong>Trampa con manos premium.</strong> Si BB está rolando mucho, hacemos limp-raise con QQ+, KK, AA para maximizar. También mezclamos algún bluff de limp-raise para proteger el rango. Sizing: 12–14bb.</td>
+        <td>~3–5% (selectivo)</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-or-fold">OR–FOLD 3BET</span></td>
+        <td>Manos con equity decente vs calling range del BB, pero no suficientes para pagar un 3-bet. En el borde entre limp-call y OR-call. Ej: <code>A4o–A6o</code>, <code>K7o–K9o</code>, <code>Q8o–Q9o</code>.</td>
+        <td>~15%</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-or-call">OR–CALL 3BET</span></td>
+        <td>Suficientemente buenas para raise y para pagar 3-bet del rival. Rango de valor real. Ej: <code>AT+</code>, <code>KJ+</code>, <code>QJs</code>, <code>JJ+</code>.</td>
+        <td>~10–12%</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-or-4bf">OR–4BET FOLD</span></td>
+        <td>Parte baja del rango OR-call. Hacemos 4-bet como bluff/semibluff. Cuidado: no excederse en frecuencia. <strong>El bottom del call siempre se convierte en 4-bet bluff</strong>. Ej: <code>A5s–A3s</code>, <code>KJs</code> (parte).</td>
+        <td>~4–6%</td>
+      </tr>
+      <tr>
+        <td><span class="action-tag tag-or-4bc">OR–4BET CALL</span></td>
+        <td>Top range. Queremos jugar por stacks. <code>AA, KK, QQ</code> (a veces <code>AKs</code>). Si optamos por limp-raise en vez de OR-4bet, el efecto es similar pero capturamos más valor del rollador BB.</td>
+        <td>~2–3%</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- LIMP VS OR -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>3 · Limp vs Open Raise</div>
+    <h2 class="block-title">¿Cuándo limpar y cuándo abrir?</h2>
+    <p class="block-desc">La decisión no es solo de mano — también depende del perfil del BB y de la profundidad del stack.</p>
+
+    <div class="two-col">
+      <div class="card" style="--card-accent: #1a6b3c;">
+        <div class="card-icon">📈</div>
+        <div class="card-title">Prefiero OR cuando...</div>
+        <div class="card-body">
+          <strong>BB es pasivo/tight:</strong> no defiende bien, cede equity fácil.<br><br>
+          <strong>Mano tiene bloaters:</strong> A-high, K-high offsuits que no flopeamos bien pero tienen fold equity al raise.<br><br>
+          <strong>Quiero charging drawing hands:</strong> hacer pagar la equity a manos especulativas del BB.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #2563eb;">
+        <div class="card-icon">🎣</div>
+        <div class="card-title">Prefiero LIMP cuando...</div>
+        <div class="card-body">
+          <strong>BB es agresivo y rollador:</strong> el limp-raise captura más valor que un OR seguido de call.<br><br>
+          <strong>Manos con playability:</strong> suited connectors que se valorizan en pot multiway o con posición.<br><br>
+          <strong>Proteger rango:</strong> mezclar limps con manos premium hace que tu rango sea impredecible.
+        </div>
+      </div>
+    </div>
+
+    <div class="principle warning">
+      <div class="principle-label">⚠️ Ajuste vs BB Agresivo</div>
+      <div class="principle-text">Si el BB está rollando mucho contra tus limps, el limp-raise con <strong>QQ, KK, AA</strong> se vuelve altamente EV+. No solo por el valor directo, sino porque reeducas al rival para que deje de rolear tu limp libremente.</div>
+    </div>
+  </div>
+
+  <!-- RESPUESTAS AL 3BET -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>4 · Respuestas al 3-Bet del BB</div>
+    <h2 class="block-title">Cuando el BB reraisa tu open</h2>
+    <p class="block-desc">A 60BB la respuesta al 3-bet es crítica porque los stacks son suficientemente profundos para postflop pero las presiones de push/fold ya existen.</p>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent: #166534;">
+        <div class="card-title">4-BET VALUE CALL</div>
+        <div class="card-body">
+          <strong>AA, KK, QQ (a veces AKs)</strong>. Queremos stacks. Sizing: ~2.2–2.5x el 3-bet para construir pot.<br><br>
+          Con 60BB el 4-bet geométrico casi siempre comite. Si tu rival 5-bet jam, pagamos.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #9d174d;">
+        <div class="card-title">4-BET BLUFF/FOLD</div>
+        <div class="card-body">
+          <strong>A5s, A4s, KJs</strong> (bottom del calling range). Bloqueamos el rango fuerte del rival, tenemos equity si pagado. Foldeamos si nos 5-bet jam.<br><br>
+          No excederse: 1 4-bet bluff por cada 2 value 4-bets aprox.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #1e40af;">
+        <div class="card-title">CALL 3-BET</div>
+        <div class="card-body">
+          <strong>AT–AK off, KJ+, QJs, JJ–TT</strong>. Suficiente equity para jugar postflop con posición (la tenés — sos SB pero la perdiste al BB que actúa después en flop).<br><br>
+          ⚠️ Cuidado: BB tiene posición postflop. Preferimos 4-bet o fold a call.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #c0392b;">
+        <div class="card-title">FOLD vs 3-BET</div>
+        <div class="card-body">
+          Todo el OR-fold range: <strong>A4o–A9o, KT–KQ (parte), QJo, JTo, manos de second tier</strong>.<br><br>
+          No te enamores de tus abrires. El OR fue exitoso si el BB foldea; si 3-bets, muchas manos van al tacho.
+        </div>
+      </div>
+    </div>
+
+    <div class="principle info" style="margin-top: 1rem;">
+      <div class="principle-label">💡 IP vs OOP post-3bet</div>
+      <div class="principle-text">A diferencia de otros spots, cuando SB hace OR y BB 3-bets, el <strong>SB queda OOP</strong> en todas las calles postflop. Esto hace que el umbral para call sea más alto que en otros spots. Preferimos polarizar: 4-bet value/bluff o fold — minimizando calls OOP con manos mediocres.</div>
+    </div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>5 · Ajustes vs Perfiles de BB</div>
+    <h2 class="block-title">Explotar al rival desde SB</h2>
+
+    <table class="range-table">
+      <tr>
+        <th>Perfil del BB</th>
+        <th>Ajuste en SB</th>
+      </tr>
+      <tr>
+        <td><strong>BB tight/pasivo</strong><br><span style="font-size:0.78rem;color:#6b7280;">Foldea mucho, no defiende bien</span></td>
+        <td>Open range más amplio. Explotar fold equity. Rolear hasta K2o, Q5o en SB para stealing. Reducir limp-raise (no defiende bien igual).</td>
+      </tr>
+      <tr>
+        <td><strong>BB agresivo/roller</strong><br><span style="font-size:0.78rem;color:#6b7280;">3-betea y rolea mucho</span></td>
+        <td>Limp más frecuente para trampa. Limp-raise con premiums. 4-bet más liberal. Estrechar OR range. Reducir OR-fold range.</td>
+      </tr>
+      <tr>
+        <td><strong>BB loose/pasivo</strong><br><span style="font-size:0.78rem;color:#6b7280;">Defiende mucho, pocas agresiones</span></td>
+        <td>OR con manos de valor claro. Evitar OR bluffs sin equity. Postflop: bet-bet-bet con hands de valor. No bluffear postflop en exceso.</td>
+      </tr>
+      <tr>
+        <td><strong>BB unknown</strong><br><span style="font-size:0.78rem;color:#6b7280;">Sin reads</span></td>
+        <td>Estrategia GTO-ish. OR range sólido (40–45%). Mix de limp con suited playables. Ajustar a partir del primer pot jugado.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- PKO -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>6 · Consideraciones PKO desde SB</div>
+    <h2 class="block-title">Progressive Knockout: cómo cambia el BvB</h2>
+
+    <div class="principle danger">
+      <div class="principle-label">🏆 Efecto PKO en BvB</div>
+      <div class="principle-text">En PKO, el BB va a <strong>defender más de lo normal</strong> contra tus opens y limps, porque quiere quedarse con tu bounty. Esto tiene dos consecuencias: (1) tus steal attempts tienen menos EV, y (2) tus value manos tienen más EV porque son pagadas más seguido.</div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent: #c0392b;">
+        <div class="card-icon">⚠️</div>
+        <div class="card-title">Ajustes como SB en PKO</div>
+        <div class="card-body">
+          <strong>Reducir bluff 3-bets:</strong> el BB te llama más, tus 3-bet bluffs funcionan menos.<br><br>
+          <strong>Value manos más anchas:</strong> si el BB paga más, podemos rolear valor con manos que normalmente foldearíamos OOP.<br><br>
+          <strong>Postflop: menos bluffs continuations.</strong>
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #1a6b3c;">
+        <div class="card-icon">✅</div>
+        <div class="card-title">X-Raise postflop en PKO</div>
+        <div class="card-body">
+          Si limp-callamos y conectamos el flop, el <strong>x-raise es muy poderoso</strong> en PKO porque el BB continúa más frecuente para ganar el bounty.<br><br>
+          Sizing del x-raise: <strong>mínimo x3 el bet</strong> para que el rival no pueda continuar con todo su rango de draws.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===================== TAB BB ===================== -->
+<div id="tab-bb" class="tab-content">
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">Contenido — BB</div>
+    <ol>
+      <li>Ventaja del BB en BvB</li>
+      <li>Vs Open Raise (OR) del SB</li>
+      <li>Vs Limp del SB</li>
+      <li>Construcción de bluffs</li>
+      <li>Value/raises parciales</li>
+      <li>Postflop: proteger rango de check</li>
+    </ol>
+  </div>
+
+  <!-- VENTAJA BB -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>1 · Ventaja del BB</div>
+    <h2 class="block-title">Por qué el BB es la mejor silla en BvB</h2>
+    <p class="block-desc">A 30BB el BB tiene ventajas estructurales únicas que debemos explotar al máximo.</p>
+
+    <div class="theory-box">
+      <h3>🏗️ Ventajas estructurales del BB</h3>
+      <ul>
+        <li><strong>Posición postflop:</strong> BB actúa después que SB en todas las calles. Enorme ventaja informativa.</li>
+        <li><strong>Precio de la defensa:</strong> ya invertiste 1BB — el precio efectivo para defender es más barato que para cualquier otra posición.</li>
+        <li><strong>Rango cerrado:</strong> el SB sabe que el BB puede tener cualquier mano. El BB no revela nada al simplemente defender.</li>
+        <li><strong>Rango defensivo amplio:</strong> a 30BB, el BB puede defender prácticamente <em>todo</em> su rango suited porque la equity se realiza bien.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- VS OR -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>2 · BB vs Open Raise del SB</div>
+    <h2 class="block-title">Estrategia de defensa vs OR</h2>
+
+    <div class="principle">
+      <div class="principle-label">📌 Principio Base</div>
+      <div class="principle-text"><strong>Defendemos TODOS los combos suited.</strong> A 30BB las manos suited tienen demasiada equity realizable (flopean fd, backdoors, pares) para foldar. El precio lo justifica.</div>
+    </div>
+
+    <table class="range-table" style="margin-top: 1rem;">
+      <tr>
+        <th>Mano / Categoría</th>
+        <th>Acción vs OR</th>
+        <th>Razonamiento</th>
+      </tr>
+      <tr>
+        <td><span class="hand-chip suited">Todos los suited</span></td>
+        <td><span class="action-tag tag-defend">DEFENDER</span></td>
+        <td>Realizamos equity con fd, bd-fd, pares. Precio 30BB lo justifica siempre.</td>
+      </tr>
+      <tr>
+        <td><span class="hand-chip pair">22–88</span></td>
+        <td><span class="action-tag tag-3b-push">3B PUSH</span></td>
+        <td>No hay mucho postflop que hacer con pares pequeños a 30BB. Presionamos ahora con la equity de set.</td>
+      </tr>
+      <tr>
+        <td><span class="hand-chip pair">99+</span> <span class="hand-chip suited">AJs, AQo+</span></td>
+        <td><span class="action-tag tag-3b-call">3B CALL</span></td>
+        <td>Manos de valor que 3-betean y pagan push del SB. No foldean ante presión.</td>
+      </tr>
+      <tr>
+        <td><span class="hand-chip offsuit">K2o–K6o</span> <span class="hand-chip offsuit">Q3o–Q6o</span></td>
+        <td><span class="action-tag tag-or-4bf">3B LIGHT</span></td>
+        <td>"Rincón de abajo a la izquierda" — combos off de carta alta baja. Mejor expandir a K2o/K3o antes que Qx medias.</td>
+      </tr>
+      <tr>
+        <td><span class="hand-chip offsuit">Axo medios-bajos</span></td>
+        <td><span class="action-tag tag-defend">DEFENDER</span></td>
+        <td>Defendemos en general. No expandimos Qx — expandemos Kx bajos primero.</td>
+      </tr>
+    </table>
+
+    <div class="principle warning" style="margin-top: 1rem;">
+      <div class="principle-label">⚡ Regla de los 3-Bets Lights</div>
+      <div class="principle-text">Los 3-bets lights vienen del "rincón de abajo a la izquierda" de la tabla de rangos: combos off-suit de carta alta con kicker bajo. <strong>3-beteamos lo que NO es suficientemente bueno para llamar</strong> — si la mano es demasiado mala para call pero demasiado buena para fold, convirtela en 3-bet bluff.</div>
+    </div>
+  </div>
+
+  <!-- VS LIMP -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>3 · BB vs Limp del SB</div>
+    <h2 class="block-title">Estrategia cuando SB limpa</h2>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent: #1a6b3c;">
+        <div class="card-icon">✔️</div>
+        <div class="card-title">CHECK BEHIND (suited)</div>
+        <div class="card-body">
+          Las manos suited <strong>checkeamos behind</strong> porque realizan/materializan bien la equity en postflop. Llegamos al river con: flush draws, backdoor draws, gutshots. No necesitamos rolear estas manos.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #c9a84c;">
+        <div class="card-icon">🎯</div>
+        <div class="card-title">RAISE (value/semi-bluff)</div>
+        <div class="card-body">
+          <strong>A7o+, K7o, K8o, Q7o–Q9o:</strong> tenemos cierto valor contra el rango de limp del SB pero foldeamos a limp-push. Si nos limp-pushean o limp-raisean, <strong>solo continuamos con AT+</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLUFFS -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>4 · Construcción de Bluffs</div>
+    <h2 class="block-title">¿Con qué manos bluffeamos?</h2>
+    <p class="block-desc">La selección de bluffs no es aleatoria — tiene lógica de rango.</p>
+
+    <div class="principle">
+      <div class="principle-label">🃏 Lógica del Bluff en BB</div>
+      <div class="principle-text">La mayoría de los bluffs vienen de <strong>basura off-suit desconectada o con baja conectividad</strong>. Estas manos no tienen valor para check-call pero tienen presencia en el rango para representar boards fuertes.</div>
+    </div>
+
+    <div class="two-col" style="margin-top: 1rem;">
+      <div>
+        <div class="section-title" style="font-size: 0.65rem;"><span class="dot"></span>Zona baja conectada</div>
+        <div class="hands-display">
+          <span class="hand-chip offsuit">T3o</span>
+          <span class="hand-chip offsuit">T4o</span>
+          <span class="hand-chip offsuit">T5o</span>
+          <span class="hand-chip offsuit">T6o</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem;">✅ Candidatos a rolear como bluff</p>
+        <div class="hands-display" style="margin-top:0.5rem;">
+          <span class="hand-chip" style="border-color:#86efac;background:#f0fdf4;color:#166534;">T8o</span>
+          <span class="hand-chip" style="border-color:#86efac;background:#f0fdf4;color:#166534;">T9o</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem;">⛔ Suficientemente buenas para check-behind (más conectividad)</p>
+      </div>
+      <div>
+        <div class="section-title" style="font-size: 0.65rem;"><span class="dot"></span>Carta alta + baja</div>
+        <div class="hands-display">
+          <span class="hand-chip offsuit">Q3o</span>
+          <span class="hand-chip offsuit">Q4o</span>
+          <span class="hand-chip offsuit">Q5o</span>
+          <span class="hand-chip offsuit">K2o</span>
+          <span class="hand-chip offsuit">K3o</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:0.4rem;">✅ Bluffs con blocker de carta alta</p>
+      </div>
+    </div>
+
+    <div class="principle info" style="margin-top: 1.25rem;">
+      <div class="principle-label">💡 Criterio de Selección</div>
+      <div class="principle-text">El bluff ideal tiene: (1) baja playability (no quieres llegar al river), (2) algún blocker útil, (3) bajo SDV (showdown value). Si una mano tiene SDV decente → check. Si no tiene nada que perder → candidata a bluff.</div>
+    </div>
+  </div>
+
+  <!-- VALUE RAISES PARCIALES -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>5 · Raises de Valor Parcial</div>
+    <h2 class="block-title">Manos que raisean sin ir all-in</h2>
+    <p class="block-desc">Existe una categoría intermedia: manos que tienen valor para raise pero que no quieren terminar all-in.</p>
+
+    <table class="range-table">
+      <tr>
+        <th>Mano</th>
+        <th>Acción</th>
+        <th>Respuesta a presión</th>
+      </tr>
+      <tr>
+        <td><span class="hands-display" style="margin:0;gap:4px;">
+          <span class="hand-chip offsuit">A7o+</span>
+        </span></td>
+        <td>Raise por valor ligero</td>
+        <td>Fold a limp-push o limp-re-raise. Continuar solo con <code>AT+</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="hands-display" style="margin:0;gap:4px;">
+          <span class="hand-chip offsuit">K7o</span><span class="hand-chip offsuit">K8o</span>
+        </span></td>
+        <td>Raise por valor</td>
+        <td>Fold a re-raise. Nos paga el rango de limp pero no jugamos por stacks.</td>
+      </tr>
+      <tr>
+        <td><span class="hands-display" style="margin:0;gap:4px;">
+          <span class="hand-chip offsuit">Q7o</span><span class="hand-chip offsuit">Q8o</span><span class="hand-chip offsuit">Q9o</span>
+        </span></td>
+        <td>Raise por valor / thin</td>
+        <td>Fold a cualquier re-raise. Valor contra calling range pasivo.</td>
+      </tr>
+    </table>
+
+    <div class="principle">
+      <div class="principle-label">📌 Regla de Continuación</div>
+      <div class="principle-text">Si nos limp-pushean o limp-raisean después de nuestro raise, <strong>solo continuamos con AT+</strong>. Todo lo demás va al muck. La disciplina aquí evita pérdidas innecesarias con manos thin.</div>
+    </div>
+  </div>
+
+  <!-- POSTFLOP -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>6 · Postflop: Proteger el Rango de Check</div>
+    <h2 class="block-title">La importancia del rango de check en BB</h2>
+
+    <div class="theory-box">
+      <h3>🛡️ Proteger el rango de check</h3>
+      <p>Cuando checkeamos en BB, no siempre es debilidad. <strong>Tenemos que meter manos fuertes en nuestro rango de check</strong> para que el SB no pueda bet/barrel libremente cada vez que checkeamos.</p>
+      <p style="margin-top:0.5rem;">Hay boards donde muchos turns no nos gustan (ej: 9♦7♣8♠ con 9♠5♥) — aunque tenemos equity, el turn puede traer cartas del SB. En esos casos, <strong>check candidato</strong>, no solo por debilidad, sino para proteger el rango.</p>
+      <p style="margin-top:0.5rem;">Un buen rango de check contiene: <strong>trampas fuertes</strong> (sets, trips, two pairs limpados) + <strong>draws</strong> (que quieren ver carta gratis) + <strong>manos mediocres</strong> (bluff catchers).</p>
+    </div>
+
+    <div class="principle warning">
+      <div class="principle-label">⚠️ X-Raise: Sizing Mínimo x3</div>
+      <div class="principle-text">Cuando ejecutamos un x-raise en BB (especialmente en PKO), el sizing mínimo es <strong>3x el bet del rival</strong>. Esto evita que continúe con todo su rango de draws/floats. Un raise chico da pot odds demasiado buenas.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ===================== TAB TEORÍA ===================== -->
+<div id="tab-teoria" class="tab-content">
+<div class="container">
+
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Teoría · Conceptos Avanzados BvB</div>
+    <h2 class="block-title">Fundamentos que rigen el BvB</h2>
+    <p class="block-desc">Para tomar decisiones sólidas en cualquier situación BvB, hay que entender los principios teóricos detrás de cada acción.</p>
+  </div>
+
+  <!-- EQUITY REALIZATION -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Equity Realization (EQ Real)</div>
+    <h2 class="block-title">¿Por qué las suited realizan mejor equity?</h2>
+
+    <div class="theory-box">
+      <h3>📊 El concepto de EQ Realization</h3>
+      <p>Una mano no vale lo que dice el equity calculator. Vale lo que puede <strong>realizar</strong> en función de su posición y playability. Las manos suited tienen mayor EQ real porque:</p>
+      <ul style="margin-top:0.5rem;">
+        <li>Flopeamos flush draws (~11%) o backdoor flush draws (~40%)</li>
+        <li>Los draws nos permiten <strong>llegar al river con equity</strong> sin necesidad de invertir</li>
+        <li>En pots single raised a 30BB, el precio de ver el flop vale la pena casi siempre</li>
+        <li>Tenemos posición (BB actúa después en postflop en BvB)</li>
+      </ul>
+    </div>
+
+    <div class="two-col" style="margin-top: 1rem;">
+      <div class="card" style="--card-accent: #2563eb;">
+        <div class="card-title">EQ Real Alta</div>
+        <div class="card-body">
+          <strong>Suited manos:</strong> realizan toda su equity. <br>
+          <strong>Pares medianos IP:</strong> set mining viable.<br>
+          <strong>Manos conectadas:</strong> más realizables que sus combos off equivalentes.
+        </div>
+      </div>
+      <div class="card" style="--card-accent: #c0392b;">
+        <div class="card-title">EQ Real Baja</div>
+        <div class="card-body">
+          <strong>Off-suit desconectadas OOP:</strong> pierden equity vs c-bets y barrels.<br>
+          <strong>A-high off mediocre:</strong> domina pocas manos, dominada por muchas.<br>
+          <strong>Pares pequeños OOP:</strong> difícil de extraer valor.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- POLARIZACION -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Polarización de Rangos</div>
+    <h2 class="block-title">Polarizar vs Condensar: cuándo y por qué</h2>
+
+    <div class="theory-box">
+      <h3>⚡ Rango Polarizado vs Condensado</h3>
+      <p><strong>Polarizado:</strong> muchos nuts + muchos bluffs, pocas manos medias. Se usa en posiciones agresivas (3-bets desde BB, x-raises).</p>
+      <p style="margin-top:0.5rem;"><strong>Condensado:</strong> muchas manos medias, pocas nuts y pocos bluffs. Se usa cuando defemos un raise o llamamos un 3-bet.</p>
+      <p style="margin-top:0.5rem;">En BvB el BB tiende a tener un rango más <strong>condensado</strong> al defender (tiene todo su rango), mientras que el SB que open-rasea tiende a tener un rango más polarizado (ya filtró sus manos medias).</p>
+    </div>
+
+    <div class="principle">
+      <div class="principle-label">📌 Aplicación Práctica</div>
+      <div class="principle-text">Cuando el BB hace un x-raise, el SB debe respetar que ese rango es <strong>altamente polarizado</strong>: o una mano muy fuerte o un bluff puro. El calling range del SB ante x-raises debe ser hands con buena equity vs nuts (flush draws, TPTK+).</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PROTECCION DE RANGO -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Protección de Rango</div>
+    <h2 class="block-title">¿Por qué manos fuertes van al rango de check?</h2>
+
+    <div class="theory-box">
+      <h3>🛡️ Range Protection</h3>
+      <p>Si <strong>siempre beteamos nuestras manos fuertes y siempre checkeamos nuestras débiles</strong>, el rival puede explotar eso: cada vez que checkeamos, barrel sin piedad porque nuestro rango es débil.</p>
+      <p style="margin-top:0.5rem;">La solución: meter <strong>algunas manos fuertes en el rango de check</strong> (slowplay estratégico). Esto hace que el rival nunca sepa si nuestro check es debilidad o trampa, balanceando nuestra frecuencia.</p>
+      <p style="margin-top:0.5rem;">En BB específicamente: limp-call con hands como <strong>sets flopeados, two pairs, traps</strong> protege el rango. Si siempre limpeamos y siempre checkeamos con basura, el SB barrela automáticamente.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FRECUENCIAS -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Frecuencias Óptimas</div>
+    <h2 class="block-title">Benchmarks de frecuencia en BvB</h2>
+    <p class="block-desc">Estas son frecuencias de referencia para calibrar tu juego. No son absolutas — ajustan vs reads.</p>
+
+    <div class="card" style="--card-accent: var(--green); padding: 1.5rem;">
+      <div class="card-title" style="margin-bottom: 1rem;">SB — Distribución de acciones vs BB pasivo</div>
+
+      <div class="freq-row">
+        <div class="freq-label">Open Raise <span>~45–55%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:50%; --bar-color: #1a6b3c;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">Limp <span>~30–35%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:32%; --bar-color: #2563eb;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">Fold <span>~10–15%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:12%; --bar-color: #c0392b;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">Limp-Raise <span>~3–5%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:4%; --bar-color: #c9a84c;"></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="--card-accent: #c0392b; padding: 1.5rem; margin-top: 1rem;">
+      <div class="card-title" style="margin-bottom: 1rem;">BB — Distribución vs OR del SB (30BB)</div>
+
+      <div class="freq-row">
+        <div class="freq-label">Defend (call/3-bet) <span>~70–80%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:75%; --bar-color: #1a6b3c;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">3-Bet value <span>~8–10%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:9%; --bar-color: #2563eb;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">3-Bet light/bluff <span>~6–8%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:7%; --bar-color: #9d174d;"></div></div>
+      </div>
+      <div class="freq-row">
+        <div class="freq-label">Fold <span>~15–20%</span></div>
+        <div class="freq-bar-track"><div class="freq-bar-fill" style="width:17%; --bar-color: #c0392b;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CHECKLIST -->
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Checklist de Decisión</div>
+    <h2 class="block-title">Preguntas antes de actuar en BvB</h2>
+
+    <table class="range-table">
+      <tr><th>#</th><th>Pregunta</th><th>Si la respuesta es...</th></tr>
+      <tr>
+        <td>1</td>
+        <td>¿Mi mano es suited?</td>
+        <td>Sí → siempre defender desde BB. Desde SB → al menos limpar.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>¿Cuál es el perfil del rival?</td>
+        <td>Tight → más steal. Agresivo → más trampas. Loose-pasivo → más thin value.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>¿Hay efectos PKO?</td>
+        <td>Sí → rival defiende más. Ajustar: menos bluffs, más value calls.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>¿Tengo historia con este rival?</td>
+        <td>Sí → explotar tendencias observadas. No → baseline GTO.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>¿La mano tiene playability?</td>
+        <td>Alta → prefer call/limp. Baja → prefer fold o 3-bet bluff polarizado.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>¿El rango de check está protegido?</td>
+        <td>No → meter alguna mano fuerte en check esta sesión.</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>
