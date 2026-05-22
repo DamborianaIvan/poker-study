@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Poker Study Library</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    :root{
+      --bg:#0b1020;
+      --bg-secondary:#121933;
+      --surface:#171f3d;
+      --surface-light:#202a52;
+
+      --border:rgba(255,255,255,0.06);
+
+      --primary:#5eead4;
+      --primary-soft:#2dd4bf;
+
+      --text:#f8fafc;
+      --text-soft:#94a3b8;
+
+      --purple:#8b5cf6;
+      --blue:#3b82f6;
+      --green:#10b981;
+
+      --radius:22px;
+
+      --shadow:
+        0 20px 40px rgba(0,0,0,0.35);
+
+      --gradient:
+        linear-gradient(
+          135deg,
+          #1e293b 0%,
+          #111827 40%,
+          #0f172a 100%
+        );
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(94,234,212,0.08), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,0.08), transparent 30%),
+        var(--bg);
+
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    a{
+      text-decoration:none;
+      color:inherit;
+    }
+
+    /* NAVBAR */
+
+    .navbar{
+      width:100%;
+      position:sticky;
+      top:0;
+      z-index:100;
+      backdrop-filter:blur(16px);
+      background:rgba(11,16,32,0.7);
+      border-bottom:1px solid var(--border);
+    }
+
+    .nav-content{
+      max-width:1300px;
+      margin:auto;
+      padding:20px 28px;
+
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .logo{
+      font-size:1.2rem;
+      font-weight:700;
+      letter-spacing:-0.5px;
+    }
+
+    .logo span{
+      color:var(--primary);
+    }
+
+    .nav-links{
+      display:flex;
+      gap:28px;
+      color:var(--text-soft);
+      font-size:0.95rem;
+    }
+
+    .nav-links a:hover{
+      color:var(--text);
+    }
+
+    /* HERO */
+
+    .hero{
+      max-width:1300px;
+      margin:auto;
+      padding:
+        90px
+        28px
+        60px;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.2fr 0.8fr;
+      gap:40px;
+      align-items:center;
+    }
+
+    .hero-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+
+      padding:10px 18px;
+      border-radius:999px;
+
+      background:rgba(94,234,212,0.08);
+      border:1px solid rgba(94,234,212,0.12);
+
+      color:var(--primary);
+      font-size:0.82rem;
+      font-weight:600;
+
+      margin-bottom:26px;
+    }
+
+    h1{
+      font-size:clamp(3rem,7vw,6rem);
+      line-height:0.92;
+      letter-spacing:-4px;
+      margin-bottom:24px;
+    }
+
+    h1 span{
+      color:var(--primary);
+    }
+
+    .hero-description{
+      max-width:720px;
+      color:var(--text-soft);
+      line-height:1.9;
+      font-size:1.05rem;
+    }
+
+    .hero-buttons{
+      display:flex;
+      gap:16px;
+      margin-top:36px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      padding:16px 26px;
+      border-radius:16px;
+      font-weight:600;
+      transition:0.2s;
+      border:1px solid transparent;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#071018;
+    }
+
+    .btn-primary:hover{
+      transform:translateY(-3px);
+    }
+
+    .btn-secondary{
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--border);
+      color:var(--text);
+    }
+
+    .btn-secondary:hover{
+      background:rgba(255,255,255,0.06);
+    }
+
+    /* HERO PANEL */
+
+    .hero-panel{
+      background:linear-gradient(
+        145deg,
+        rgba(32,42,82,0.95),
+        rgba(17,24,39,0.95)
+      );
+
+      border:1px solid var(--border);
+      border-radius:32px;
+
+      padding:28px;
+
+      box-shadow:var(--shadow);
+    }
+
+    .panel-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:24px;
+    }
+
+    .panel-title{
+      font-weight:700;
+      font-size:1rem;
+    }
+
+    .online-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 12px var(--green);
+    }
+
+    .panel-card{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.04);
+
+      border-radius:20px;
+      padding:20px;
+      margin-bottom:18px;
+    }
+
+    .panel-card:last-child{
+      margin-bottom:0;
+    }
+
+    .panel-card h3{
+      font-size:1rem;
+      margin-bottom:10px;
+    }
+
+    .panel-card p{
+      color:var(--text-soft);
+      line-height:1.7;
+      font-size:0.9rem;
+    }
+
+    /* SECTIONS */
+
+    .section{
+      max-width:1300px;
+      margin:auto;
+      padding:40px 28px 80px;
+    }
+
+    .section-top{
+      margin-bottom:36px;
+    }
+
+    .section-subtitle{
+      color:var(--primary);
+      font-size:0.82rem;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      margin-bottom:14px;
+      font-weight:700;
+    }
+
+    .section-title{
+      font-size:2.7rem;
+      letter-spacing:-2px;
+      margin-bottom:16px;
+    }
+
+    .section-description{
+      max-width:760px;
+      color:var(--text-soft);
+      line-height:1.8;
+    }
+
+    /* GRID */
+
+    .guides-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:24px;
+    }
+
+    .guide-card{
+      background:
+        linear-gradient(
+          145deg,
+          rgba(32,42,82,0.9),
+          rgba(17,24,39,0.95)
+        );
+
+      border:1px solid var(--border);
+      border-radius:28px;
+
+      padding:26px;
+
+      transition:0.25s;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .guide-card::before{
+      content:'';
+      position:absolute;
+      inset:0;
+
+      background:
+        radial-gradient(circle at top right,
+        rgba(94,234,212,0.08),
+        transparent 30%);
+    }
+
+    .guide-card:hover{
+      transform:translateY(-6px);
+      border-color:rgba(94,234,212,0.18);
+    }
+
+    .guide-type{
+      color:var(--primary);
+      font-size:0.78rem;
+      text-transform:uppercase;
+      letter-spacing:2px;
+      margin-bottom:18px;
+      font-weight:700;
+    }
+
+    .guide-title{
+      font-size:1.8rem;
+      letter-spacing:-1px;
+      margin-bottom:14px;
+      font-weight:700;
+    }
+
+    .guide-text{
+      color:var(--text-soft);
+      line-height:1.8;
+      font-size:0.95rem;
+    }
+
+    .guide-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:24px;
+    }
+
+    .tag{
+      padding:8px 12px;
+      border-radius:999px;
+
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.05);
+
+      font-size:0.78rem;
+      color:var(--text-soft);
+    }
+
+    .guide-link{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+
+      margin-top:28px;
+
+      color:var(--primary);
+      font-weight:700;
+    }
+
+    /* FEATURE */
+
+    .feature{
+      margin-top:90px;
+
+      background:var(--gradient);
+      border-radius:36px;
+      border:1px solid var(--border);
+
+      overflow:hidden;
+
+      display:grid;
+      grid-template-columns:1fr 1fr;
+    }
+
+    .feature-left{
+      padding:60px;
+      border-right:1px solid var(--border);
+    }
+
+    .feature-right{
+      padding:60px;
+    }
+
+    .feature-title{
+      font-size:2.6rem;
+      line-height:1.05;
+      letter-spacing:-2px;
+      margin-bottom:22px;
+    }
+
+    .feature-title span{
+      color:var(--primary);
+    }
+
+    .feature-description{
+      color:var(--text-soft);
+      line-height:1.9;
+      max-width:520px;
+    }
+
+    .feature-list{
+      display:flex;
+      flex-direction:column;
+      gap:26px;
+    }
+
+    .feature-item h3{
+      margin-bottom:10px;
+      font-size:1rem;
+    }
+
+    .feature-item p{
+      color:var(--text-soft);
+      line-height:1.8;
+      font-size:0.92rem;
+    }
+
+    /* FOOTER */
+
+    footer{
+      border-top:1px solid var(--border);
+      padding:40px 28px;
+      margin-top:100px;
+    }
+
+    .footer-content{
+      max-width:1300px;
+      margin:auto;
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .footer-left{
+      color:var(--text-soft);
+      font-size:0.92rem;
+    }
+
+    .footer-right{
+      display:flex;
+      gap:18px;
+      color:var(--text-soft);
+      font-size:0.9rem;
+    }
+
+    .footer-right a:hover{
+      color:var(--text);
+    }
+
+    /* MOBILE */
+
+    @media(max-width:980px){
+
+      .hero-grid{
+        grid-template-columns:1fr;
+      }
+
+      .feature{
+        grid-template-columns:1fr;
+      }
+
+      .feature-left{
+        border-right:none;
+        border-bottom:1px solid var(--border);
+      }
+
+      .feature-left,
+      .feature-right{
+        padding:40px 30px;
+      }
+
+      h1{
+        letter-spacing:-2px;
+      }
+
+      .nav-links{
+        display:none;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+
+  <nav class="navbar">
+
+    <div class="nav-content">
+
+      <div class="logo">
+        Poker<span>Study</span>
+      </div>
+
+      <div class="nav-links">
+        <a href="#">Inicio</a>
+        <a href="#guides">Guías</a>
+        <!-- <a href="#">PKO</a> -->
+        <!-- <a href="#">ICM</a> -->
+        <!-- <a href="#">Postflop</a> -->
+      </div>
+
+    </div>
+
+  </nav>
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-grid">
+
+      <div>
+
+        <div class="hero-tag">
+          Advanced Tournament Poker Library
+        </div>
+
+        <h1>
+          Build your <span>MTT Edge</span>
+        </h1>
+
+        <p class="hero-description">
+          Biblioteca estratégica enfocada en torneos online, PKOs,
+          teoría GTO y ajustes exploitativos reales.
+          Diseñada para grinders que quieren estudiar de forma moderna,
+          organizada y visualmente limpia.
+        </p>
+
+        <div class="hero-buttons">
+
+          <a href="#guides" class="btn btn-primary">
+            Explorar Guías
+          </a>
+
+          <a href="#" class="btn btn-secondary">
+            Última actualización
+          </a>
+
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+
+      <div class="hero-panel">
+
+        <div class="panel-header">
+
+          <div class="panel-title">
+            Study Dashboard
+          </div>
+
+          <div class="online-dot"></div>
+
+        </div>
+
+        <div class="panel-card">
+
+          <h3>BvB Strategy</h3>
+
+          <p>
+            Open raises, limps, defensa BB,
+            teoría avanzada y adaptaciones PKO.
+          </p>
+
+        </div>
+
+        <div class="panel-card">
+
+          <h3>Small Blind Theory</h3>
+
+          <p>
+            Construcción de rangos,
+            frecuencias y juego postflop.
+          </p>
+
+        </div>
+
+        <!-- <div class="panel-card"> -->
+
+          <!-- <h3>ICM & Final Tables</h3> -->
+
+          <!-- <p> -->
+            <!-- Presión ICM, reshoves, -->
+            <!-- stack leverage y dinámica FT. -->
+          <!-- </p> -->
+
+        <!-- </div> -->
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- GUIDES -->
+
+  <section class="section" id="guides">
+
+    <div class="section-top">
+
+      <div class="section-subtitle">
+        Strategic Library
+      </div>
+
+      <div class="section-title">
+        Guías disponibles
+      </div>
+
+      <div class="section-description">
+        Navegá spots específicos y estudiá conceptos
+        aplicables directamente al grind real de MTTs.
+      </div>
+
+    </div>
+
+    <div class="guides-grid">
+
+      <!-- CARD -->
+
+      <a href="./blinds/blind-war.html" class="guide-card">
+
+        <div class="guide-type">
+          Blind vs Blind
+        </div>
+
+        <div class="guide-title">
+          BvB Strategy
+        </div>
+
+        <div class="guide-text">
+          Estrategia completa desde SB y BB:
+          limps, ORs, defensa, teoría avanzada
+          y ajustes exploitativos.
+        </div>
+
+        <div class="guide-tags">
+          <div class="tag">PKO</div>
+          <div class="tag">30BB</div>
+          <div class="tag">60BB</div>
+          <div class="tag">Postflop</div>
+        </div>
+
+        <div class="guide-link">
+          Abrir guía →
+        </div>
+
+      </a>
+
+      <!-- CARD -->
+
+     <a href="./blinds/sb-game.html" class="guide-card">
+
+        <div class="guide-type">
+          Small Blind
+        </div>
+
+        <div class="guide-title">
+          SB Complete Strategy
+        </div>
+
+        <div class="guide-text">
+          Juego desde SB vs EP, MP y LP.
+          Open raise, limp ranges,
+          3bets y teoría postflop.
+        </div>
+
+        <div class="guide-tags">
+          <div class="tag">Theory</div>
+          <div class="tag">MTT</div>
+          <div class="tag">Exploit</div>
+        </div>
+		
+		 <div class="guide-link">
+          Abrir guía →
+        </div>
+      </a>
+
+    </div>
+
+    <!-- FEATURE -->
+
+    <div class="feature">
+
+      <div class="feature-left">
+
+		<div class="section-subtitle">
+			Filosofía de estudio
+		</div>
+
+		<div class="feature-title">
+			Teoría que <span>realmente se aplica</span>
+		</div>
+
+        <div class="feature-description">
+          El objetivo de esta biblioteca no es memorizar charts,
+          sino entender por qué funcionan.
+          Cada guía mezcla fundamentos GTO,
+          lógica estratégica y exploits prácticos
+          para el field real online.
+        </div>
+
+      </div>
+
+      <div class="feature-right">
+
+        <div class="feature-list">
+
+          <div class="feature-item">
+
+            <h3>📚 Estructura modular</h3>
+
+            <p>
+              Cada guía está separada por spot,
+              profundidad y dinámica.
+            </p>
+
+          </div>
+
+          <div class="feature-item">
+
+            <h3>🧠 Explicaciones conceptuales</h3>
+
+            <p>
+              No solo rangos:
+              también EV realization,
+              polarización y construcción.
+            </p>
+
+          </div>
+
+          <div class="feature-item">
+
+            <h3>⚡ Diseño oscuro premium</h3>
+
+            <p>
+              Inspirado en software moderno de estudio
+              para largas sesiones sin fatiga visual.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+
+  <footer>
+
+    <div class="footer-content">
+
+      <div class="footer-left">
+        PokerStudy © 2026 · AD00S 
+      </div>
+
+      <div class="footer-right">
+        <!-- <a href="#">Discord</a> -->
+        <a href="#">Guías</a>
+        <a href="#">Updates</a>
+      </div>
+
+    </div>
+
+  </footer>
+
+</body>
+</html>
