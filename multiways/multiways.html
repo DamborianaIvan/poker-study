@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pots Multiway MTT — Guía Premium Completa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #080809;
+  --bg2: #101012;
+  --bg3: #18181c;
+  --bg4: #202025;
+  --border: #25252b;
+  --border2: #2e2e36;
+  --text: #e2e2e8;
+  --muted: #7a7a88;
+  --muted2: #5a5a66;
+  --green: #22d07a;
+  --green-dim: #0d2b1a;
+  --green-border: rgba(34,208,122,0.2);
+  --red: #f05a5a;
+  --red-dim: #2a1010;
+  --red-border: rgba(240,90,90,0.2);
+  --amber: #f0a830;
+  --amber-dim: #2a1e08;
+  --amber-border: rgba(240,168,48,0.2);
+  --blue: #5b9cf6;
+  --blue-dim: #0e1e38;
+  --blue-border: rgba(91,156,246,0.2);
+  --purple: #a78bfa;
+  --purple-dim: #1a1030;
+  --purple-border: rgba(167,139,250,0.2);
+  --accent: #22d07a;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 14px;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sidebar-logo h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-nav { padding: 12px 0; flex: 1; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-title {
+  font-size: 9px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 8px 20px 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  line-height: 1.3;
+}
+.nav-link:hover { color: var(--text); background: var(--bg3); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--green-dim); }
+.nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); flex-shrink: 0; }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 64px 52px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(34,208,122,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: 'MW';
+  position: absolute;
+  right: 60px; top: 30px;
+  font-family: 'Syne', sans-serif;
+  font-size: 140px;
+  font-weight: 800;
+  color: rgba(34,208,122,0.04);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.hero h1 span { color: var(--accent); }
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 480px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.hero-stats { display: flex; gap: 32px; }
+.hero-stat { text-align: left; }
+.hero-stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.hero-stat-label { font-size: 11px; color: var(--muted); }
+
+/* CONTENT */
+.content { padding: 0 64px 100px; max-width: 860px; }
+.section { padding-top: 64px; }
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.section-num.red { color: var(--red); background: var(--red-dim); border-color: var(--red-border); }
+.section-num.amber { color: var(--amber); background: var(--amber-dim); border-color: var(--amber-border); }
+.section-num.blue { color: var(--blue); background: var(--blue-dim); border-color: var(--blue-border); }
+.section-num.purple { color: var(--purple); background: var(--purple-dim); border-color: var(--purple-border); }
+
+.section-title-wrap h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.section-title-wrap p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+  margin: 32px 0 14px;
+}
+h4 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 20px 0 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+p { color: #b8b8c8; margin-bottom: 12px; font-size: 13.5px; }
+strong { color: var(--text); font-weight: 500; }
+
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 8px; }
+.card p:last-child { margin-bottom: 0; }
+.card.green { border-left: 3px solid var(--green); }
+.card.red { border-left: 3px solid var(--red); }
+.card.amber { border-left: 3px solid var(--amber); }
+.card.blue { border-left: 3px solid var(--blue); }
+.card.purple { border-left: 3px solid var(--purple); }
+
+/* GRIDS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+
+/* METRIC CARDS */
+.metric-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.metric-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.metric-value { font-size: 22px; font-weight: 600; line-height: 1; margin-bottom: 4px; font-family: 'Syne', sans-serif; }
+.metric-sub { font-size: 11px; color: var(--muted); }
+.mv-green { color: var(--green); }
+.mv-red { color: var(--red); }
+.mv-amber { color: var(--amber); }
+.mv-blue { color: var(--blue); }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th {
+  background: var(--bg3);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #b8b8c8; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.01); }
+.td-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.td-green { color: var(--green); font-weight: 500; }
+.td-red { color: var(--red); font-weight: 500; }
+.td-amber { color: var(--amber); font-weight: 500; }
+.td-bold { color: var(--text); font-weight: 500; }
+
+/* HAND CHIPS */
+.hand-grid { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.hand { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; padding: 3px 7px; border-radius: 4px; white-space: nowrap; }
+.hv { background: rgba(34,208,122,0.12); color: var(--green); border: 1px solid var(--green-border); }
+.hb { background: rgba(91,156,246,0.12); color: var(--blue); border: 1px solid var(--blue-border); }
+.hc { background: rgba(240,168,48,0.12); color: var(--amber); border: 1px solid var(--amber-border); }
+.hm { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid var(--purple-border); }
+.hr { background: rgba(240,90,90,0.12); color: var(--red); border: 1px solid var(--red-border); }
+.hand-legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+.hl-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+.hl-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* RULE LIST */
+.rule-list { list-style: none; }
+.rule-list li { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #b8b8c8; align-items: flex-start; line-height: 1.6; }
+.rule-list li:last-child { border-bottom: none; }
+.ri { color: var(--accent); flex-shrink: 0; font-size: 12px; margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.ri.red { color: var(--red); }
+.ri.amber { color: var(--amber); }
+
+/* ALERTS */
+.alert { border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 13px; display: flex; gap: 12px; align-items: flex-start; }
+.alert-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+.alert p { margin: 0; line-height: 1.6; }
+.alert.green { background: var(--green-dim); border: 1px solid var(--green-border); }
+.alert.green .alert-icon, .alert.green p { color: #7ee8b0; }
+.alert.red { background: var(--red-dim); border: 1px solid var(--red-border); }
+.alert.red .alert-icon, .alert.red p { color: #f09090; }
+.alert.amber { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+.alert.amber .alert-icon, .alert.amber p { color: #f0c070; }
+.alert.blue { background: var(--blue-dim); border: 1px solid var(--blue-border); }
+.alert.blue .alert-icon, .alert.blue p { color: #90b8f8; }
+
+/* FORMULA */
+.formula {
+  background: var(--bg3);
+  border: 1px solid var(--green-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--green);
+  line-height: 1.8;
+}
+.formula .fc { color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; display: block; margin-top: 4px; }
+
+/* STAGE CARDS */
+.stage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.stage-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stage-name { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.stage-card p { font-size: 12px; margin-bottom: 0; line-height: 1.6; }
+
+/* ERROR ITEMS */
+.error-item { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; }
+.error-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.error-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.error-fix { font-size: 12px; color: var(--green); margin-top: 6px; }
+
+/* EXPLOIT CARD */
+.exploit-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 10px; }
+.exploit-trigger { font-size: 10px; color: var(--amber); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.exploit-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 8px; }
+.exploit-body { font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+.exploit-action { font-size: 12px; color: var(--green); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+/* CHEATSHEET */
+.cheatsheet { background: var(--bg2); border: 1px solid var(--green-border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+.cheatsheet-header { background: var(--green-dim); padding: 12px 20px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--green-border); }
+.cheatsheet-body { padding: 16px 20px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+/* PROGRESS BAR */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.bar-lbl { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--muted); width: 110px; flex-shrink: 0; }
+.bar-track { flex: 1; background: var(--bg3); border-radius: 3px; height: 16px; }
+.bar-fill { height: 16px; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 500; }
+.bf-green { background: var(--green-dim); border: 1px solid var(--green-border); color: var(--green); }
+.bf-red { background: var(--red-dim); border: 1px solid var(--red-border); color: var(--red); }
+.bf-amber { background: var(--amber-dim); border: 1px solid var(--amber-border); color: var(--amber); }
+.bf-blue { background: var(--blue-dim); border: 1px solid var(--blue-border); color: var(--blue); }
+
+/* QUIZ */
+.quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 12px; }
+.quiz-q { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 16px; line-height: 1.5; }
+.quiz-scenario { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--amber); background: var(--amber-dim); border: 1px solid var(--amber-border); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; line-height: 1.6; }
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+.quiz-opt { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 9px 14px; font-size: 12.5px; color: var(--muted); cursor: pointer; transition: all 0.12s; text-align: left; }
+.quiz-opt:hover { border-color: var(--border2); color: var(--text); }
+.quiz-opt.correct { background: var(--green-dim); border-color: var(--green-border); color: #7ee8b0; }
+.quiz-opt.wrong { background: var(--red-dim); border-color: var(--red-border); color: #f09090; }
+.quiz-exp { margin-top: 12px; font-size: 12.5px; color: var(--muted); line-height: 1.65; background: var(--bg3); border-radius: 6px; padding: 12px 14px; display: none; border-left: 2px solid var(--accent); }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+.quiz-counter { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); }
+.quiz-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 7px 16px; border-radius: 5px; border: 1px solid var(--border2); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.12s; }
+.quiz-btn:hover { color: var(--text); border-color: var(--accent); }
+.quiz-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* RANGE BOX */
+.range-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; margin: 12px 0; }
+.range-title { font-size: 10px; color: var(--muted); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ACTION GRID */
+.action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.action-cell { border-radius: 8px; padding: 12px 14px; }
+.ac-fold { background: var(--red-dim); border: 1px solid var(--red-border); }
+.ac-call { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+.ac-raise { background: var(--green-dim); border: 1px solid var(--green-border); }
+.ac-caution { background: var(--purple-dim); border: 1px solid var(--purple-border); }
+.action-type { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.ac-fold .action-type { color: var(--red); }
+.ac-call .action-type { color: var(--amber); }
+.ac-raise .action-type { color: var(--green); }
+.ac-caution .action-type { color: var(--purple); }
+.action-hands { font-size: 11.5px; color: #b8b8c8; line-height: 1.6; }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Curso Premium MTT · $5–$7</div>
+    <h2>Pots Multiway<br>Complete Guide</h2>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Fundamentos</div>
+      <a href="#intro" class="nav-link active"><span class="nav-num">01</span>Por qué multiway es diferente</a>
+      <a href="#equity" class="nav-link"><span class="nav-num">02</span>Equity y matemática multiway</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Preflop</div>
+      <a href="#preflop-manos" class="nav-link"><span class="nav-num">03</span>Selección de manos</a>
+      <a href="#preflop-sizing" class="nav-link"><span class="nav-num">04</span>Sizing preflop</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Postflop</div>
+      <a href="#postflop-sizing" class="nav-link"><span class="nav-num">05</span>Sizing y frecuencias</a>
+      <a href="#texturas" class="nav-link"><span class="nav-num">06</span>Texturas del board</a>
+      <a href="#draws" class="nav-link"><span class="nav-num">07</span>Draws en multiway</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Aplicación</div>
+      <a href="#errores" class="nav-link"><span class="nav-num">08</span>Errores comunes</a>
+      <a href="#exploits" class="nav-link"><span class="nav-num">09</span>Exploits a $5–$7</a>
+      <a href="#cheatsheet" class="nav-link"><span class="nav-num">10</span>Cheatsheet</a>
+      <a href="#quiz" class="nav-link"><span class="nav-num">11</span>Quiz interactivo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">● MTT $5–$7 · 3+ jugadores en el pot</div>
+  <h1>Pots<br><span>Multiway</span></h1>
+  <p class="hero-sub">La guía más completa de juego en spots de 3 o más jugadores para MTTs online de bajo buy-in. El tema más ignorado y más rentable de tu stake.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">11</div><div class="hero-stat-label">Secciones</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-label">Quiz spots</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">GTO</div><div class="hero-stat-label">+ Exploits</div></div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===================== 01 INTRO ===================== -->
+<section class="section" id="intro">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div class="section-title-wrap">
+      <h2>Por qué multiway es diferente</h2>
+      <p>Los 3 ejes que cambian todo cuando hay 3 o más jugadores en el pot</p>
+    </div>
+  </div>
+
+  <p>La mayoría de los jugadores de MTT aprenden estrategia heads-up (HU) y la aplican directamente a pots multiway. Ese error les cuesta fichas en cada sesión. En multiway, las reglas del juego cambian estructuralmente — no es cuestión de ajustar un poco, es una estrategia diferente.</p>
+
+  <div class="grid-3">
+    <div class="metric-card"><div class="metric-label">Equity promedio HU</div><div class="metric-value mv-green">~50%</div><div class="metric-sub">Base para decisiones</div></div>
+    <div class="metric-card"><div class="metric-label">Equity promedio 3-way</div><div class="metric-value mv-amber">~33%</div><div class="metric-sub">−17pp vs HU</div></div>
+    <div class="metric-card"><div class="metric-label">Equity promedio 4-way</div><div class="metric-value mv-red">~25%</div><div class="metric-sub">−25pp vs HU</div></div>
+  </div>
+
+  <h3>Los 3 ejes que definen el juego multiway</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>Equidad relativa baja:</strong> Manos como KJ o A8 que dominan en HU pierden valor drásticamente porque siempre hay alguien con mejor kicker, par superior, o dos pares. Necesitás manos con "nut advantage" — las que pueden hacer la mejor mano posible del board, no solo una mano decente.</div></li>
+    <li><span class="ri red">✗</span><div><strong>Fold equity casi nula:</strong> Con más jugadores en el pot, la probabilidad de que todos foldeen cae exponencialmente. Si cada jugador tiene 30% de chance de llamar, en un pot 3-way la probabilidad de ganar con bluff puro es solo ~49%. En 4-way, ~34%. Los bluffs raramente tienen EV positiva en multiway.</div></li>
+    <li><span class="ri">→</span><div><strong>Pot odds mejoradas para draws:</strong> Esto va al revés — cuando pegás un draw nutted (flush, straight, full house) en multiway, el pot ya es grande y hay más jugadores dispuestos a pagar. Tus manos especulativas tienen mayor implied odds justamente porque el premio cuando pegás es más grande.</div></li>
+  </ul>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>La regla maestra del juego multiway:</strong> Priorizá manos que hacen <em>nuts o nada</em>. Las manos "decentes" se convierten en problemas — hacen top pair mediocre, no saben dónde están, y terminan en situaciones de call/fold que cuestan fichas. En multiway querés manos que cuando mejoran, mejoran al máximo del board.</p>
+  </div>
+
+  <h3>Cómo debería verse tu mentalidad en cada spot</h3>
+  <div class="grid-2">
+    <div class="card red">
+      <div class="card-title">Mentalidad HU (error en multiway)</div>
+      <p>"Tengo top pair buen kicker, voy a apostar para cobrar value y protegerme de draws." Esta lógica en multiway con KQ en un board K72 ignora que hay sets de 7, K2, K7, 77, 22 en rango de los otros jugadores. Cobrar valor contra ese rango es muy costoso.</p>
+    </div>
+    <div class="card green">
+      <div class="card-title">Mentalidad multiway (correcta)</div>
+      <p>"¿Qué tan cerca de nuts estoy? ¿Tengo redraw si alguien tiene mejor made hand? ¿La textura del board me permite extraer valor sin arriesgar demasiado?" El foco pasa de 'tengo una mano buena' a 'qué posición relativa tengo en este board específico'.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 02 EQUITY ===================== -->
+<section class="section" id="equity">
+  <div class="section-header">
+    <span class="section-num blue">02</span>
+    <div class="section-title-wrap">
+      <h2>Equity y matemática multiway</h2>
+      <p>Los números que necesitás entender para tomar decisiones correctas</p>
+    </div>
+  </div>
+
+  <p>La matemática del juego multiway es contraintuitiva. No es lineal — la reducción de equity no solo afecta tus manos buenas, también distorsiona el valor de bluffear, de llamar con draws y de construir el pot.</p>
+
+  <h3>Equity real de manos comunes en diferentes formatos</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mano</th><th>vs 1 oponente (HU)</th><th>vs 2 oponentes (3-way)</th><th>vs 3 oponentes (4-way)</th><th>Conclusión</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">AA</td><td class="td-green">~85%</td><td class="td-amber">~73%</td><td class="td-amber">~63%</td><td>Sigue siendo muy fuerte, pero no imbatible</td></tr>
+        <tr><td class="td-bold">KK</td><td class="td-green">~82%</td><td class="td-amber">~67%</td><td class="td-amber">~56%</td><td>Pierde equity significativa</td></tr>
+        <tr><td class="td-bold">AKs</td><td class="td-green">~67%</td><td class="td-amber">~50%</td><td class="td-red">~39%</td><td>De dominante a equitativo</td></tr>
+        <tr><td class="td-bold">KQo</td><td class="td-amber">~60%</td><td class="td-red">~40%</td><td class="td-red">~30%</td><td>Problemática en multiway</td></tr>
+        <tr><td class="td-bold">T9s</td><td class="td-amber">~54%</td><td class="td-amber">~38%</td><td class="td-amber">~29%</td><td>Speculative, vive de draws</td></tr>
+        <tr><td class="td-bold">22 (set mining)</td><td class="td-red">~50%</td><td class="td-amber">~38%</td><td class="td-amber">~30%</td><td>Mejora con implied odds multiway</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>La matemática del bluff en multiway</h3>
+  <div class="formula">
+    P(fold multiway) = P(fold jugador A) × P(fold jugador B) × P(fold jugador C)...
+    <span class="fc">Si cada jugador foldea con 60% de probabilidad: 3-way = 0.6 × 0.6 = 36% | 4-way = 0.6 × 0.6 × 0.6 = 22%</span>
+  </div>
+
+  <div class="alert amber">
+    <span class="alert-icon">!</span>
+    <p><strong>Implicación práctica:</strong> Para que un bluff sea rentable al 100% del pot en 3-way necesitás que todos foldeen más del 50% del tiempo. En stakes $5-7 donde los jugadores no foldean suficiente, esto raramente ocurre. La fold equity requerida vs la fold equity real casi nunca cuadra en multiway.</p>
+  </div>
+
+  <h3>Implied odds para draws en multiway</h3>
+  <p>El lado positivo: cuando pegás un draw fuerte en multiway, podés ganar mucho más. Si tenés un flush draw en un pot 4-way y todos tienen algo de equity, el pot puede ser enorme cuando mejorás.</p>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">Draw con buenas implied odds en multiway</div>
+      <p>Flush draw nutted (A-high flush). Straight draw nutted (OESD con el straight más alto). Set de pocket pair baja. Estas manos se pagan solas cuando completan porque el pot ya es grande y hay jugadores con manos fuertes que van a pagar.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">Draws con malas implied odds en multiway</div>
+      <p>Flush draw no nutted (si completás el flush pero alguien tiene el flush más alto, perdés un pot enorme). Gutshot solo sin redraw adicional. Overcards solas sin pair equity — en multiway necesitás más que 6 outs para justificar.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 03 PREFLOP MANOS ===================== -->
+<section class="section" id="preflop-manos">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <div class="section-title-wrap">
+      <h2>Selección de manos en multiway</h2>
+      <p>Qué jugar, qué reducir y qué evitar cuando hay múltiples jugadores</p>
+    </div>
+  </div>
+
+  <p>La selección de manos en multiway es el ajuste más impactante que podés hacer. El mismo rango que jugás HU no funciona cuando hay 3 o 4 personas. Necesitás manos con potencial de nuts y equity de redraw.</p>
+
+  <h3>Manos que ganan valor en multiway</h3>
+  <div class="range-box">
+    <div class="range-title">Excelentes en multiway — potencial de nuts alto</div>
+    <div class="hand-grid">
+      <span class="hand hv">22–99</span>
+      <span class="hand hv">T9s</span>
+      <span class="hand hv">98s</span>
+      <span class="hand hv">87s</span>
+      <span class="hand hv">76s</span>
+      <span class="hand hv">65s</span>
+      <span class="hand hv">A2s–A9s</span>
+      <span class="hand hv">KQs</span>
+      <span class="hand hv">QJs</span>
+      <span class="hand hv">JTs</span>
+      <span class="hand hv">TT–JJ</span>
+      <span class="hand hv">QQ–AA</span>
+      <span class="hand hv">AKs</span>
+      <span class="hand hv">AQs</span>
+    </div>
+    <div class="hand-legend">
+      <div class="hl-item"><div class="hl-dot" style="background:rgba(34,208,122,0.4)"></div>Potencial de nuts / sets / flushes nutted</div>
+    </div>
+  </div>
+
+  <div class="range-box">
+    <div class="range-title">Problemáticas en multiway — reducí o eliminá</div>
+    <div class="hand-grid">
+      <span class="hand hr">KJo</span>
+      <span class="hand hr">QJo</span>
+      <span class="hand hr">KTo</span>
+      <span class="hand hr">QTo</span>
+      <span class="hand hr">JTo</span>
+      <span class="hand hc">AJo</span>
+      <span class="hand hc">ATo</span>
+      <span class="hand hc">A9o</span>
+      <span class="hand hc">KJo</span>
+      <span class="hand hc">K9o</span>
+    </div>
+    <div class="hand-legend">
+      <div class="hl-item"><div class="hl-dot" style="background:rgba(240,90,90,0.4)"></div>Hacen top pair mediocre — no saben dónde están</div>
+      <div class="hl-item"><div class="hl-dot" style="background:rgba(240,168,48,0.4)"></div>Reducí frecuencia — con cuidado</div>
+    </div>
+  </div>
+
+  <h3>Por qué KJo, QJo son trampas</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>Hacen top pair con kicker débil:</strong> KJo en un board J72 en multiway tiene un problema — alguien tiene J7, J2, 77, 22, o incluso KJ pero con redraw. Tu "top pair buen kicker" se convierte en una mano difícil de manejar con múltiples jugadores.</div></li>
+    <li><span class="ri">→</span><div><strong>No tienen potencial de nuts:</strong> Cuando KJo mejora lo máximo posible (dos pares, trío), sigue siendo vulnerable a flushes, straights, y full houses que los otros jugadores construyen con suited connectors.</div></li>
+    <li><span class="ri red">✗</span><div><strong>Son "call and cry" hands:</strong> Apostás, alguien raise, y no sabés si sos ahead o atrás. Contra un jugador, podés leer. Contra tres, no hay suficiente información. El resultado son spots de call/fold incómodos en street costosas.</div></li>
+  </ul>
+
+  <h3>Ajuste específico para $5–$7 MTT</h3>
+  <div class="alert amber">
+    <span class="alert-icon">!</span>
+    <p><strong>Los jugadores en $5–$7 no foldean suficiente en multiway.</strong> Esto implica dos ajustes: primero, bajá el bluff a casi cero. Segundo, con manos de valor real (sets, flushes, two pair con redraw) apostá más grande porque van a pagar con peores manos. El valor esperado de tus manos fuertes sube porque el pool de jugadores sobredefiende.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 04 PREFLOP SIZING ===================== -->
+<section class="section" id="preflop-sizing">
+  <div class="section-header">
+    <span class="section-num amber">04</span>
+    <div class="section-title-wrap">
+      <h2>Sizing preflop con limpers y multiway</h2>
+      <p>Cómo ajustar los tamaños de apuesta para reducir el número de jugadores</p>
+    </div>
+  </div>
+
+  <p>El objetivo preflop en muchos spots es <strong>reducir el número de jugadores</strong> cuando tenés manos que juegan mejor HU o 3-way, y <strong>entrar barato</strong> cuando tenés manos especulativas que necesitan multiway para ser rentables.</p>
+
+  <h3>Sizing de apertura con limpers en el pot</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situación</th><th>Sizing recomendado</th><th>Objetivo</th><th>Con qué manos</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">Sin limpers</td><td class="td-green">2.2–2.5BB</td><td>Estándar, abrir amplio</td><td>Todo tu rango de open</td></tr>
+        <tr><td class="td-bold">1 limper</td><td class="td-green">3.5–4BB</td><td>Iso-raise, reducir jugadores</td><td>Valor premium + especulativas</td></tr>
+        <tr><td class="td-bold">2 limpers</td><td class="td-amber">5–6BB</td><td>Iso-raise más agresivo</td><td>Principalmente valor fuerte</td></tr>
+        <tr><td class="td-bold">3+ limpers</td><td class="td-amber">6–8BB</td><td>O iso grande o completás especulativas</td><td>Premium para iso / pares y suited para completar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert blue">
+    <span class="alert-icon">→</span>
+    <p><strong>La fórmula del iso-raise:</strong> Abrí 2.5BB + 1BB por cada limper adicional. Con 3 limpers y AA: mínimo 5.5–6BB. El objetivo es que la cantidad de jugadores en el flop sea manejable. Un pot 5-way abierto desde UTG con AA es un problema, no una oportunidad.</p>
+  </div>
+
+  <h3>Cuándo completar el blind en vez de iso-raise</h3>
+  <p>Hay spots donde completar desde SB (o simplemente llamar desde otras posiciones) es correcto en multiway:</p>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>Pocket pairs bajas (22–66) con 3+ limpers:</strong> Las implied odds de un pot grande hacen que completar para set mining sea correcto. Si el pot es 4BB con 4 jugadores y completás por 0.5BB adicional, el prize cuando pegás set es enorme.</div></li>
+    <li><span class="ri">→</span><div><strong>Suited connectors medianos (65s, 76s) en pot grande:</strong> Con muchos jugadores, estas manos tienen valor especulativo. Completá en vez de iso-raise cuando no tenés posición post-flop.</div></li>
+    <li><span class="ri red">✗</span><div><strong>No completés con KJo, QTo y similares:</strong> Estas manos no mejoran suficientemente con posición y múltiples oponentes. Mejor fold o iso-raise fuerte — el call flojo es el peor resultado.</div></li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 05 POSTFLOP SIZING ===================== -->
+<section class="section" id="postflop-sizing">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <div class="section-title-wrap">
+      <h2>Sizing y frecuencias postflop</h2>
+      <p>La regla de "grande o no apostar" y cuándo aplicarla</p>
+    </div>
+  </div>
+
+  <p>El error de sizing más caro en multiway: usar sizings de HU (25–33% del pot) en spots que requieren apuestas más grandes. En multiway, la norma es <strong>apostá grande cuando tenés valor real, o no apostés</strong>.</p>
+
+  <h3>Por qué las apuestas pequeñas son peligrosas en multiway</h3>
+  <ul class="rule-list">
+    <li><span class="ri red">✗</span><div><strong>Invitás a todos a ver el siguiente street:</strong> Una apuesta de 25% del pot da odds de 5:1 a cada jugador. Con 3 oponentes, virtualmente todos van a llamar con cualquier draw, par débil, o sobrecarta. Esto maximiza el número de jugadores que pueden sacarte con mejoras.</div></li>
+    <li><span class="ri red">✗</span><div><strong>No cobrás suficiente por tu hand fuerte:</strong> Si tenés un set y apostás 25% en 4-way, el pot en el river va a ser mucho más chico de lo que podría haber sido. Las manos fuertes necesitan builds de pot agresivos.</div></li>
+    <li><span class="ri">→</span><div><strong>La excepción:</strong> En boards muy secos con range advantage claro, una apuesta pequeña puede tener sentido para thin value amplio. Ejemplo: AJo en board A22 rainbow en 3-way — pequeño betting con muchas manos del rango puede extraer valor de pairs mediocres.</div></li>
+  </ul>
+
+  <h3>Sizing recomendado en multiway por tipo de mano</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tipo de mano</th><th>Formato</th><th>Sizing recomendado</th><th>Razonamiento</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">Sets, two pair top</td><td>3-way</td><td class="td-green">66–80% pot</td><td>Construí pot. Hay jugadores con draws que van a pagar.</td></tr>
+        <tr><td class="td-bold">Flush hecho (nutted)</td><td>3-way / 4-way</td><td class="td-green">70–100% pot</td><td>Extraé el máximo. Draws menores pagarán gustosos.</td></tr>
+        <tr><td class="td-bold">TPTK sin redraw</td><td>3-way</td><td class="td-amber">40–55% pot</td><td>Cuidado — sos vulnerable a muchas manos. No construyas pot enorme.</td></tr>
+        <tr><td class="td-bold">Flush draw nutted</td><td>3-way</td><td class="td-amber">50–66% pot</td><td>Semibluff con equity real. Cobrás fold equity + equity de draw.</td></tr>
+        <tr><td class="td-bold">Bluff puro</td><td>cualquier multiway</td><td class="td-red">No apostar</td><td>No tiene EV positiva en $5–$7. Evitá casi siempre.</td></tr>
+        <tr><td class="td-bold">Two pair mediocre</td><td>4-way</td><td class="td-amber">Checkear o 40%</td><td>Evaluá si tenés el mejor two pair. No construyas pot grande vulnerable.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>El check-raise en multiway</h3>
+  <p>El check-raise en multiway es una señal muy fuerte — comunica una mano al tope del rango. Usalo principalmente con:</p>
+  <div class="action-grid">
+    <div class="action-cell ac-raise">
+      <div class="action-type">Check-raise valor</div>
+      <div class="action-hands">Sets en boards húmedos. Two pair con redraw en boards dinámicos. Flush hecho cuando el board pone otro draw posible.</div>
+    </div>
+    <div class="action-cell ac-caution">
+      <div class="action-type">Check-raise semi-bluff</div>
+      <div class="action-hands">Flush draw nutted (A-high FD). OESD con overcard. Solo en 3-way, no en 4-way o más.</div>
+    </div>
+    <div class="action-cell ac-fold">
+      <div class="action-type">No check-raise</div>
+      <div class="action-hands">Bluff puro sin equity. TPTK sin redraw. Two pair débil. En 4-way o más, casi nunca check-raisees sin nuts.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 06 TEXTURAS ===================== -->
+<section class="section" id="texturas">
+  <div class="section-header">
+    <span class="section-num blue">06</span>
+    <div class="section-title-wrap">
+      <h2>Texturas del board en multiway</h2>
+      <p>Cómo leer el board y ajustar la estrategia según el tipo de flop</p>
+    </div>
+  </div>
+
+  <p>La textura del board determina qué manos se benefician más de la situación multiway, quién tiene range advantage, y cuánto podés apostar. En multiway, la lectura del board importa el doble.</p>
+
+  <h3>Boards secos (dry boards)</h3>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">A72 rainbow / K83 rainbow</div>
+      <p>En boards secos con carta alta, el aggressor preflop tiene ventaja de rango. Podés apostar más seguido, pero en multiway el sizing sigue siendo más alto que en HU. Apostar 45–55% del pot con TPTK es razonable — no hay muchos draws que deban foldar.</p>
+    </div>
+    <div class="card amber">
+      <div class="card-title">774 / 664 / AA5</div>
+      <p>Boards pares favorecen al PFR porque tenés más trips en tu rango. Apostar 40–55% amplio con buen rango. Con el set de la carta del board o full house, podés apostar más grande buscando valor de flushes o straight draws posibles.</p>
+    </div>
+  </div>
+
+  <h3>Boards húmedos (wet boards)</h3>
+  <div class="grid-2">
+    <div class="card amber">
+      <div class="card-title">T98 two-tone / J87 suited</div>
+      <p>Muchos draws, mucha equity repartida entre los jugadores. En multiway con boards así, <strong>checkear</strong> con TPTK es frecuentemente correcto — hay too much equity en el rango de los oponentes. Apostá fuerte con sets, dos pares top, y flush draw nutted.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">765 / 876 / 543 (boards bajos conectados)</div>
+      <p>El peor board para el aggressor en multiway. Los jugadores especulativos que llamaron preflop (suited connectors, pocket pairs bajas) golpean estos boards directamente. Check es casi siempre correcto con manos que no sean nuts o cerca.</p>
+    </div>
+  </div>
+
+  <h3>Frecuencia de bet y sizing por textura en multiway</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Board</th><th>Bet freq (multiway)</th><th>Sizing</th><th>Nota</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">Seco alto (A72r, K83r)</td><td class="td-green">50–60%</td><td>45–55%</td><td>Range advantage. Apostá valor y algunos bluffs con equity.</td></tr>
+        <tr><td class="td-bold">Seco medio (J72r, T63r)</td><td class="td-amber">35–45%</td><td>40–55%</td><td>Más selectivo. Solo valor real y semi-bluffs con draws fuertes.</td></tr>
+        <tr><td class="td-bold">Húmedo (JT8, 987)</td><td class="td-amber">30–40%</td><td>60–75%</td><td>Polarizado. Cuando apostás, tenés nuts o draw fuerte.</td></tr>
+        <tr><td class="td-bold">Bajo conectado (765, 876)</td><td class="td-red">20–30%</td><td>50–65%</td><td>Desventaja de rango en multiway. Checkear con casi todo.</td></tr>
+        <tr><td class="td-bold">Monotone (AKQ mono)</td><td class="td-amber">30–40%</td><td>40–55%</td><td>Solo con NFD o mano hecha. Sin flush draw, check casi siempre.</td></tr>
+        <tr><td class="td-bold">Paired (774, AA5)</td><td class="td-green">50–65%</td><td>40–55%</td><td>PFR tiene más trips. Apostá amplio con sizing medium.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 07 DRAWS ===================== -->
+<section class="section" id="draws">
+  <div class="section-header">
+    <span class="section-num purple">07</span>
+    <div class="section-title-wrap">
+      <h2>Draws en multiway</h2>
+      <p>Cuándo son más valiosos, cuándo son peligrosos, y cómo jugarlos</p>
+    </div>
+  </div>
+
+  <p>El aspecto más contraintuitivo del multiway: tus <strong>draws fuertes mejoran de valor</strong> porque el pot es más grande y hay más jugadores dispuestos a pagar cuando pegás. Pero los draws débiles empeoran porque el riesgo de ser superado es mayor.</p>
+
+  <h3>Draws que mejoran en multiway</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>Flush draw nutted (A-high o K-high):</strong> En multiway, alguien frecuentemente tiene el flush draw menor o un par fuerte. Cuando completás el flush, el pot ya es grande y el oponente con el flush menor es tu amigo — va a pagar. Apostá grande o semibluffeá agresivamente con el NFD.</div></li>
+    <li><span class="ri">→</span><div><strong>OESD con overcards (QJ en board T9x):</strong> Tenés 15+ outs — 8 para el straight y 6 para par de overcard. En multiway con ese equity esto es casi una mano hecha. Podés semibluffear agresivamente. El pot grande cuando pegás justifica el riesgo.</div></li>
+    <li><span class="ri">→</span><div><strong>Combo draw (FD + OESD o pair + FD):</strong> Estas son las manos más poderosas en multiway. Con 15–20 outs tenés más equity que una mano hecha promedio. Raise o lead bet con estas.</div></li>
+  </ul>
+
+  <h3>Draws peligrosos en multiway</h3>
+  <ul class="rule-list">
+    <li><span class="ri red">✗</span><div><strong>Flush draw no nutted (5-high, 7-high flush draw):</strong> Si completás y alguien tiene el flush mayor, perdés un pot enorme. En multiway con flush draw de baja calidad, procedé con cautela. Chequeá o llamá calls baratos — no construyas pots grandes.</div></li>
+    <li><span class="ri red">✗</span><div><strong>Gutshot solo sin par ni overcard:</strong> 4 outs en multiway no alcanza. El pot tiene que ser enorme para justificar continuar con solo un gutshot y sin equity adicional. Fold casi siempre en 4-way o más.</div></li>
+    <li><span class="ri amber">!</span><div><strong>Overcards solas (AK en board bajo):</strong> 6 outs en multiway es difícil de defender. Necesitás pot odds muy favorables o posición. En multiway las manos hechas son lo que importa — tus "outs" de par podrían igualmente hacerte second pair inferior.</div></li>
+  </ul>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>Regla para draws en multiway:</strong> Si tu draw completa la mano más alta posible del board (flush A-high, straight más alto, full house), es una mano para construir pots grandes. Si tu draw puede completar pero potencialmente ser superado, jugalo pasivo — llamá si hay valor, no construyas pots.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 08 ERRORES ===================== -->
+<section class="section" id="errores">
+  <div class="section-header">
+    <span class="section-num red">08</span>
+    <div class="section-title-wrap">
+      <h2>Errores comunes en multiway</h2>
+      <p>Los 6 errores que más fichas cuestan en pots de 3+ jugadores</p>
+    </div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #1 — Sobrevaluar TPTK en boards dinámicos</div>
+    <div class="error-desc">Tenés AK en un flop K98 en 4-way. En HU esto es un bet/bet/bet. En 4-way el rango de los oponentes tiene K9, K8, 99, 88, T7s, JT. Tu "top pair" está en seria desventaja. Muchos jugadores apuestan fuerte y se sorprenden cuando enfrentan acción.</div>
+    <div class="error-fix">→ Fix: En boards húmedos con TPTK en multiway, chequeá más seguido. Con acción enfrentada (bet + call antes que vos), considerá fold con manos no nutted.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #2 — Apostar pequeño para "protegerse"</div>
+    <div class="error-desc">Apostar 25–33% del pot en multiway le da pot odds de 4:1 o 5:1 a cada jugador. Eso significa que casi cualquier draw, cualquier par, cualquier overcard es un call correcto para los oponentes. No te estás protegiendo — estás financiando sus mejoras.</div>
+    <div class="error-fix">→ Fix: Apostá 60–80% del pot con manos fuertes en multiway, o no apostés. Eliminá el sizing intermedio que no tiene sentido estratégico.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #3 — Bluffear en multiway en $5–$7</div>
+    <div class="error-desc">Los jugadores de estos stakes no foldean lo suficiente incluso HU. En multiway con 3 jugadores, la probabilidad de que todos foldeen es astronómicamente baja. Bluffear con 0% de equity en multiway a estos stakes es directamente tirar fichas.</div>
+    <div class="error-fix">→ Fix: En multiway en $5–$7, tu bluff range debe ser casi cero. Si necesitás bluffear, hacelo con semi-bluffs que tengan al menos 10–12 outs reales.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #4 — No distinguir flush draw nutted vs non-nutted</div>
+    <div class="error-desc">Muchos jugadores tratan todos los flush draws igual. En multiway, la diferencia entre el A-high flush draw y el 7-high flush draw es abismal. El primero merece apuestas agresivas. El segundo es una mano para calleos baratos — construir pot con el flush draw menor en multiway puede terminar en una pérdida enorme.</div>
+    <div class="error-fix">→ Fix: Antes de apostar con flush draw en multiway, evaluá: "Si completo el flush, ¿podría alguien tener uno mayor?" Si la respuesta es sí, jugalo pasivo.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #5 — Aplicar frecuencias de HU en multiway</div>
+    <div class="error-desc">El solver HU dice "apostá 70% del rango en este board". En multiway, esa frecuencia cae a 30–40%. Muchos jugadores que estudiaron con solvers HU extraen mal las conclusiones y terminan con bet frequencies demasiado altas en multiway.</div>
+    <div class="error-fix">→ Fix: El punto de partida en multiway es checkear. Solo apostás cuando tenés una razón clara: valor near-nuts, semi-bluff con draw nutted poderoso, o range advantage muy claro en board muy seco.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error #6 — No aprovechar el valor aumentado de draws especulativos</div>
+    <div class="error-desc">El error opuesto también existe: muchos jugadores de $5–$7 foldan suited connectors y pocket pairs bajas en posición cuando hay múltiples limpers. En esos spots, esas manos tienen valor implícito enorme para set mining y draw gaming en pots multiway grandes.</div>
+    <div class="error-fix">→ Fix: Con stack de 30BB+, completar o llamar con 22–88, T9s, 98s, 87s cuando hay 3+ jugadores en el pot es correcto. Las implied odds son tu justificación matemática.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 09 EXPLOITS ===================== -->
+<section class="section" id="exploits">
+  <div class="section-header">
+    <span class="section-num amber">09</span>
+    <div class="section-title-wrap">
+      <h2>Exploits rentables en $5–$7 multiway</h2>
+      <p>Cómo monetizar los errores más comunes del pool de jugadores</p>
+    </div>
+  </div>
+
+  <p>El pool de jugadores en MTT de $5–$7 tiene patrones predecibles en spots multiway. Identificarlos y explotarlos sistemáticamente es donde está el dinero real.</p>
+
+  <div class="exploit-card">
+    <div class="exploit-trigger">Trigger: Pot multiway sin aggressor claro (pot limpeado)</div>
+    <div class="exploit-title">Nadie defiende — liderá el pot con valor</div>
+    <div class="exploit-body">En pots limpeados multiway, la presión de apostar recae sobre quien tenga la mano más fuerte. El pool de $5–$7 suele checkear around estos pots por miedo o indecisión. Si tenés cualquier mano de valor real (top pair decente o mejor), apostá 60–70% del pot. La fold equity es sorprendentemente alta en estos spots.</div>
+    <div class="exploit-action">→ Apostá 60–70% del pot con top pair + o mejor en pots limpeados multiway. El pool no sabe cómo defenderse correctamente.</div>
+  </div>
+
+  <div class="exploit-card">
+    <div class="exploit-trigger">Trigger: Pool subfoldea flop, overfoldea turn en $5–$7</div>
+    <div class="exploit-title">El turn barrel vale más de lo esperado</div>
+    <div class="exploit-body">La tendencia del pool en stakes bajos: llaman demasiado en flop con draws y manos débiles, luego cuando el turn no mejora, foldean al barrel. En multiway, esto significa que tu turn barrel con draws propios o con manos de valor tiene fold equity mayor de lo esperado. No es un bluff puro — es presión con equity que tiene EV positiva.</div>
+    <div class="exploit-action">→ Barreleá turn en multiway cuando tenés equity real (draw fuerte, TPTK en board que mejoró tu rango). La fold equity del turn es mayor que la del flop en este pool.</div>
+  </div>
+
+  <div class="exploit-card">
+    <div class="exploit-trigger">Trigger: Jugador pasivo que solo bet con value en multiway</div>
+    <div class="exploit-title">El player pasivo no bluffea — fold vs sus bets</div>
+    <div class="exploit-body">En $5–$7, muchos jugadores en spots multiway solo apuestan cuando tienen mano hecha fuerte. Si un jugador que había estado checkeando todo el tiempo de repente hace una apuesta grande en multiway en el river, tiene mano casi siempre. Esta es una lectura de pool muy confiable a estos stakes.</div>
+    <div class="exploit-action">→ Vs jugadores pasivos en multiway: chequeá/foldeá vs sus apuestas al menos en el 70% de los casos salvo que tengas mano nutted.</div>
+  </div>
+
+  <div class="exploit-card">
+    <div class="exploit-trigger">Trigger: Stack corto (15–20BB) en pot multiway</div>
+    <div class="exploit-title">Presionás stacks cortos con shove en multiway</div>
+    <div class="exploit-body">Cuando hay un stack corto en el pot multiway, podés usar el all-in como herramienta de isolación efectiva. Si el stack corto limp-llamó preflop y hay 3–4 jugadores, un shove grande puede aislar al stack corto y jugar HU contra él — generalmente un escenario más favorable que el multiway.</div>
+    <div class="exploit-action">→ Con manos de valor (77+, AQ+) en multiway con un short stack presente, considerá el shove para aislar. La fold equity vs los jugadores de stack completo es suficiente.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 10 CHEATSHEET ===================== -->
+<section class="section" id="cheatsheet">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <div class="section-title-wrap">
+      <h2>Cheatsheet multiway</h2>
+      <p>Referencia rápida para aplicar en mesa</p>
+    </div>
+  </div>
+
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">// preflop — selección de manos</div>
+    <div class="cheatsheet-body">
+      <div class="bar-row"><span class="bar-lbl">22–99</span><div class="bar-track"><div class="bar-fill bf-green" style="width:92%">Set mining — excelente</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">Suited conn.</span><div class="bar-track"><div class="bar-fill bf-green" style="width:88%">T9s–65s — muy buenos</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">Ax suited</span><div class="bar-track"><div class="bar-fill bf-green" style="width:82%">A2s–A9s — flush nutted</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">TT–AA</span><div class="bar-track"><div class="bar-fill bf-green" style="width:95%">Siempre jugar fuerte</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">KQs, QJs</span><div class="bar-track"><div class="bar-fill bf-blue" style="width:72%">Con cuidado — suited OK</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">KJo, QJo</span><div class="bar-track"><div class="bar-fill bf-amber" style="width:38%">Reducir frecuencia</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">AJo, ATo</span><div class="bar-track"><div class="bar-fill bf-amber" style="width:32%">Problemáticas — cuidado</div></div></div>
+    </div>
+  </div>
+
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">// postflop — decisiones rápidas</div>
+    <div class="cheatsheet-body">
+      <div class="bar-row"><span class="bar-lbl">Set / Full house</span><div class="bar-track"><div class="bar-fill bf-green" style="width:95%">Bet 65–80% — extraé máximo</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">Flush nutted</span><div class="bar-track"><div class="bar-fill bf-green" style="width:92%">Bet 70–100% — hay múltiples pagadores</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">TPTK (board seco)</span><div class="bar-track"><div class="bar-fill bf-blue" style="width:55%">Bet 40–55% — con cuidado</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">TPTK (board húmedo)</span><div class="bar-track"><div class="bar-fill bf-amber" style="width:30%">Chequeá frecuentemente</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">FD nutted</span><div class="bar-track"><div class="bar-fill bf-blue" style="width:65%">Semibluff 50–66%</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">FD no nutted</span><div class="bar-track"><div class="bar-fill bf-amber" style="width:28%">Call barato / check</div></div></div>
+      <div class="bar-row"><span class="bar-lbl">Bluff puro</span><div class="bar-track"><div class="bar-fill bf-red" style="width:8%">Casi nunca en $5–$7</div></div></div>
+    </div>
+  </div>
+
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">// reglas de oro — llevá esto a mesa</div>
+    <div class="cheatsheet-body">
+      <ul class="rule-list">
+        <li><span class="ri">1.</span><div>En multiway, priorizá manos de nuts. KJo es una trampa. 88 es tu amigo.</div></li>
+        <li><span class="ri">2.</span><div>Apostá grande (65%+) o no apostés. El sizing intermedio no tiene sentido estratégico en multiway.</div></li>
+        <li><span class="ri">3.</span><div>El bluff puro en multiway en $5–$7 es donar fichas. Semi-bluff solo con 12+ outs.</div></li>
+        <li><span class="ri">4.</span><div>El flush draw nutted en multiway vale más que en HU. Semibluffeá agresivamente con él.</div></li>
+        <li><span class="ri">5.</span><div>Pocket pairs 22–88 mejoran de valor con 3+ limpers. Set mining tiene implied odds correctas.</div></li>
+        <li><span class="ri">6.</span><div>Cuando tenés nuts en multiway, apostá grande. El pool va a pagar.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 11 QUIZ ===================== -->
+<section class="section" id="quiz">
+  <div class="section-header">
+    <span class="section-num green">11</span>
+    <div class="section-title-wrap">
+      <h2>Quiz interactivo</h2>
+      <p>5 spots prácticos para testear lo aprendido en esta guía</p>
+    </div>
+  </div>
+
+  <div class="quiz-card" id="quiz-container">
+    <div id="q-body"></div>
+    <div class="quiz-nav">
+      <span class="quiz-counter" id="q-counter"></span>
+      <button class="quiz-btn" id="q-next" onclick="nextQ()" disabled>siguiente →</button>
+    </div>
+  </div>
+</section>
+
+</div><!-- end content -->
+</main><!-- end main -->
+
+<script>
+// Nav active link on scroll
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+
+// Quiz
+const questions = [
+  {
+    scenario: "BTN · stack 40BB · UTG abre 2.5BB, MP llama, CO llama. Tenés 7♠7♦.",
+    q: "¿Qué acción tomás desde BTN?",
+    opts: ["Fold — hay demasiados jugadores para jugar un par chico", "Call — buscamos set mining con implied odds enormes", "3-bet — queremos aislar y jugar HU con TT+", "All-in — bloqueamos las re-raises"],
+    correct: 1,
+    exp: "77 es perfecta para set mining en multiway. El pot va a tener 10BB+, hay 3 oponentes que pueden pagar un set, y las implied odds son correctas con 40BB efectivos. El 3-bet es incorrecto porque 77 no juega bien vs múltiples llamadas y tampoco tenemos suficiente fold equity para aislar."
+  },
+  {
+    scenario: "Flop 4-way · K♠8♦3♥ · Vos tenés K♣Q♦ en BTN · El aggressor preflop apuesta 40% del pot · Un jugador llama · Pasa a vos.",
+    q: "¿Qué hacés con TPTK en este spot?",
+    opts: ["Raise fuerte — tenemos la mano más fuerte posible casi siempre", "Call y evaluamos el turn con cuidado", "Fold — es multiway y somos vulnerables", "All-in para proteger la mano"],
+    correct: 1,
+    exp: "TPTK con kicker decente es suficiente para continuar, pero no para raise en un pot 4-way. El rango del aggressor incluye K8, K3, 88, 33, AK, KK en su rango. Hay un jugador que ya llamó detrás. Call y evaluamos el turn — si llega un rey o una K, mejor para nosotros. Si llega acción pesada, consideramos el fold."
+  },
+  {
+    scenario: "Flop 3-way · J♦T♦9♣ · Vos tenés A♦K♦ · El aggressor hace c-bet de 65% del pot · El otro jugador llama.",
+    q: "Con A♦K♦ (nut flush draw + gutshot al Broadway), ¿qué hacés?",
+    opts: ["Fold — no tenemos par y el board es muy húmedo", "Call — tenemos equity pero el pot ya es grande", "Raise — tenemos el draw más fuerte y podemos ganar el pot ahora", "Fold porque es un bluff y en multiway no funciona"],
+    correct: 2,
+    exp: "Con el nut flush draw + gutshot al Broadway (el straight más alto) tenés 15+ outs — más equity que muchas manos hechas. Raise es correcto: podés ganar el pot ahora con fold equity, y si te llaman, tenés equity real para ganar en el turn/river. El pot va a ser enorme y vos tenés las mejores manos posibles del board."
+  },
+  {
+    scenario: "Turn 3-way · Board K♥8♥7♠2♦ · Vos tenés 8♠8♦ (set de 8) · El primer jugador apuesta · El segundo llama.",
+    q: "¿Cuánto raise hacés con tu set en esta situación?",
+    opts: ["Raise chico (2x) para no asustarlos", "Raise pot o más — al menos 3x", "Call para disimular y explotar en el river", "Fold — hay flush draw y posible set mejor"],
+    correct: 1,
+    exp: "Con set de 8 en un board que tiene un flush draw de corazones, necesitás cobrar ahora. Si das odds baratas, el flush draw completa en el river y perdés un pot grande. Raise de al menos pot (3x o más) es correcto. Si alguien tiene flush draw o K8/K7, va a pagar un raise grande. No regales odds en un board dinámico con tu mejor mano."
+  },
+  {
+    scenario: "Flop 5-way limped · 5♣4♣2♦ · Vos tenés 7♦6♦ (straight nut) · Todos chequearon a vos.",
+    q: "¿Cuánto apostás con el straight nut en un pot 5-way limpeado?",
+    opts: ["Check — para no revelar la mano fuerte", "25–30% del pot — enganchar a todos", "60–75% del pot — extraer valor real", "All-in directamente"],
+    correct: 2,
+    exp: "Con el straight nut en un pot 5-way tenés la mejor mano posible. Apostá 60–75% del pot. Los draws de flush de trébol, los dos pares, los sets en este board — van a pagar. Una apuesta pequeña da odds demasiado baratas a 4 jugadores y reduce tu EV total. El all-in puede espantarlos — el 60–75% maximiza el número de llamadas mientras cobra suficiente valor."
+  }
+];
+
+let current = 0, answered = false;
+
+function renderQ() {
+  answered = false;
+  document.getElementById('q-next').disabled = true;
+  document.getElementById('q-counter').textContent = (current + 1) + ' / ' + questions.length;
+  const q = questions[current];
+  let html = '<div class="quiz-scenario">' + q.scenario + '</div>';
+  html += '<div class="quiz-q">' + q.q + '</div>';
+  html += '<div class="quiz-opts">';
+  q.opts.forEach((opt, i) => {
+    html += '<button class="quiz-opt" id="qo' + i + '" onclick="answer(' + i + ')">' + opt + '</button>';
+  });
+  html += '</div>';
+  html += '<div class="quiz-exp" id="qexp">' + q.exp + '</div>';
+  document.getElementById('q-body').innerHTML = html;
+}
+
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.quiz-opt').forEach((el, idx) => {
+    el.disabled = true;
+    if (idx === q.correct) el.classList.add('correct');
+    else if (idx === i && i !== q.correct) el.classList.add('wrong');
+  });
+  document.getElementById('qexp').style.display = 'block';
+  document.getElementById('q-next').disabled = false;
+  if (current === questions.length - 1) {
+    document.getElementById('q-next').textContent = 'reiniciar ↺';
+  }
+}
+
+function nextQ() {
+  current = (current + 1) % questions.length;
+  renderQ();
+}
+
+renderQ();
+</script>
+
+</body>
+</html>
