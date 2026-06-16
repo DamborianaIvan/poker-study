@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICM Avanzado MTT — Bubble Factor · Cover Leverage · Risk Premium</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #080809;
+  --bg2: #101012;
+  --bg3: #18181c;
+  --bg4: #202025;
+  --border: #25252b;
+  --border2: #2e2e36;
+  --text: #e2e2e8;
+  --muted: #7a7a88;
+  --muted2: #5a5a66;
+  --green: #22d07a;
+  --green-dim: #0d2b1a;
+  --green-border: rgba(34,208,122,0.2);
+  --red: #f05a5a;
+  --red-dim: #2a1010;
+  --red-border: rgba(240,90,90,0.2);
+  --amber: #f0a830;
+  --amber-dim: #2a1e08;
+  --amber-border: rgba(240,168,48,0.2);
+  --blue: #5b9cf6;
+  --blue-dim: #0e1e38;
+  --blue-border: rgba(91,156,246,0.2);
+  --purple: #a78bfa;
+  --purple-dim: #1a1030;
+  --purple-border: rgba(167,139,250,0.2);
+  --accent: #22d07a;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 14px;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sidebar-logo h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-nav { padding: 12px 0; flex: 1; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-title {
+  font-size: 9px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 8px 20px 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  line-height: 1.3;
+}
+.nav-link:hover { color: var(--text); background: var(--bg3); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--green-dim); }
+.nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); flex-shrink: 0; }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 64px 52px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(34,208,122,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: 'ICM';
+  position: absolute;
+  right: 60px; top: 30px;
+  font-family: 'Syne', sans-serif;
+  font-size: 140px;
+  font-weight: 800;
+  color: rgba(34,208,122,0.04);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.hero h1 span { color: var(--accent); }
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 480px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.hero-stats { display: flex; gap: 32px; }
+.hero-stat { text-align: left; }
+.hero-stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.hero-stat-label { font-size: 11px; color: var(--muted); }
+
+/* CONTENT */
+.content { padding: 0 64px 100px; max-width: 860px; }
+.section { padding-top: 64px; }
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 4px;
+}
+.section-num.red { color: var(--red); background: var(--red-dim); border-color: var(--red-border); }
+.section-num.amber { color: var(--amber); background: var(--amber-dim); border-color: var(--amber-border); }
+.section-num.blue { color: var(--blue); background: var(--blue-dim); border-color: var(--blue-border); }
+.section-num.purple { color: var(--purple); background: var(--purple-dim); border-color: var(--purple-border); }
+
+.section-title-wrap h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.section-title-wrap p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+  margin: 32px 0 14px;
+}
+h4 {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 20px 0 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+p { color: #b8b8c8; margin-bottom: 12px; font-size: 13.5px; }
+strong { color: var(--text); font-weight: 500; }
+
+/* CARDS */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 8px; }
+.card p:last-child { margin-bottom: 0; }
+.card.green { border-left: 3px solid var(--green); }
+.card.red { border-left: 3px solid var(--red); }
+.card.amber { border-left: 3px solid var(--amber); }
+.card.blue { border-left: 3px solid var(--blue); }
+.card.purple { border-left: 3px solid var(--purple); }
+
+/* GRIDS */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; }
+
+/* METRIC CARDS */
+.metric-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.metric-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.metric-value { font-size: 22px; font-weight: 600; line-height: 1; margin-bottom: 4px; font-family: 'Syne', sans-serif; }
+.metric-sub { font-size: 11px; color: var(--muted); }
+.mv-green { color: var(--green); }
+.mv-red { color: var(--red); }
+.mv-amber { color: var(--amber); }
+.mv-blue { color: var(--blue); }
+.mv-purple { color: var(--purple); }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th {
+  background: var(--bg3);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #b8b8c8; vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.01); }
+.td-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.td-green { color: var(--green); font-weight: 500; }
+.td-red { color: var(--red); font-weight: 500; }
+.td-amber { color: var(--amber); font-weight: 500; }
+.td-bold { color: var(--text); font-weight: 500; }
+.td-purple { color: var(--purple); font-weight: 500; }
+
+/* RULE LIST */
+.rule-list { list-style: none; }
+.rule-list li { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #b8b8c8; align-items: flex-start; line-height: 1.6; }
+.rule-list li:last-child { border-bottom: none; }
+.ri { color: var(--accent); flex-shrink: 0; font-size: 12px; margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.ri.red { color: var(--red); }
+.ri.amber { color: var(--amber); }
+.ri.blue { color: var(--blue); }
+
+/* ALERTS */
+.alert { border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 13px; display: flex; gap: 12px; align-items: flex-start; }
+.alert-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+.alert p { margin: 0; line-height: 1.6; }
+.alert.green { background: var(--green-dim); border: 1px solid var(--green-border); }
+.alert.green .alert-icon, .alert.green p { color: #7ee8b0; }
+.alert.red { background: var(--red-dim); border: 1px solid var(--red-border); }
+.alert.red .alert-icon, .alert.red p { color: #f09090; }
+.alert.amber { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+.alert.amber .alert-icon, .alert.amber p { color: #f0c070; }
+.alert.blue { background: var(--blue-dim); border: 1px solid var(--blue-border); }
+.alert.blue .alert-icon, .alert.blue p { color: #90b8f8; }
+.alert.purple { background: var(--purple-dim); border: 1px solid var(--purple-border); }
+.alert.purple .alert-icon, .alert.purple p { color: #c4b0fc; }
+
+/* FORMULA */
+.formula {
+  background: var(--bg3);
+  border: 1px solid var(--green-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--green);
+  line-height: 1.8;
+}
+.formula .fc { color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; display: block; margin-top: 4px; }
+
+/* STAGE CARDS */
+.stage-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.stage-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stage-name { font-size: 11px; color: var(--accent); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.stage-card p { font-size: 12px; margin-bottom: 0; line-height: 1.6; }
+
+/* ERROR ITEMS */
+.error-item { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 6px; padding: 12px 16px; margin-bottom: 8px; }
+.error-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.error-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.error-fix { font-size: 12px; color: var(--green); margin-top: 6px; }
+
+/* CHEATSHEET */
+.cheatsheet { background: var(--bg2); border: 1px solid var(--green-border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+.cheatsheet-header { background: var(--green-dim); padding: 12px 20px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid var(--green-border); }
+.cheatsheet-body { padding: 16px 20px; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+/* PROGRESS BAR */
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.bar-lbl { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--muted); width: 130px; flex-shrink: 0; }
+.bar-track { flex: 1; background: var(--bg3); border-radius: 3px; height: 16px; }
+.bar-fill { height: 16px; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; font-weight: 500; }
+.bf-green { background: var(--green-dim); border: 1px solid var(--green-border); color: var(--green); }
+.bf-red { background: var(--red-dim); border: 1px solid var(--red-border); color: var(--red); }
+.bf-amber { background: var(--amber-dim); border: 1px solid var(--amber-border); color: var(--amber); }
+.bf-blue { background: var(--blue-dim); border: 1px solid var(--blue-border); color: var(--blue); }
+.bf-purple { background: var(--purple-dim); border: 1px solid var(--purple-border); color: var(--purple); }
+
+/* QUIZ */
+.quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 12px; }
+.quiz-q { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 16px; line-height: 1.5; }
+.quiz-scenario { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--amber); background: var(--amber-dim); border: 1px solid var(--amber-border); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; line-height: 1.6; }
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+.quiz-opt { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 9px 14px; font-size: 12.5px; color: var(--muted); cursor: pointer; transition: all 0.12s; text-align: left; width: 100%; }
+.quiz-opt:hover { border-color: var(--border2); color: var(--text); }
+.quiz-opt.correct { background: var(--green-dim); border-color: var(--green-border); color: #7ee8b0; }
+.quiz-opt.wrong { background: var(--red-dim); border-color: var(--red-border); color: #f09090; }
+.quiz-exp { margin-top: 12px; font-size: 12.5px; color: var(--muted); line-height: 1.65; background: var(--bg3); border-radius: 6px; padding: 12px 14px; display: none; border-left: 2px solid var(--accent); }
+.quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+.quiz-counter { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); }
+.quiz-btn { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 7px 16px; border-radius: 5px; border: 1px solid var(--border2); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.12s; }
+.quiz-btn:hover { color: var(--text); border-color: var(--accent); }
+.quiz-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* ATTACK MAP */
+.attack-map { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 16px 0; }
+.am-cell { border-radius: 8px; padding: 14px 16px; }
+.am-attack { background: var(--green-dim); border: 1px solid var(--green-border); }
+.am-neutral { background: var(--bg3); border: 1px solid var(--border); }
+.am-danger { background: var(--red-dim); border: 1px solid var(--red-border); }
+.am-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; }
+.am-attack .am-label { color: var(--green); }
+.am-neutral .am-label { color: var(--muted); }
+.am-danger .am-label { color: var(--red); }
+.am-desc { font-size: 11.5px; color: #b8b8c8; line-height: 1.6; }
+
+/* CHAIN DIAGRAM */
+.chain { display: flex; flex-direction: column; gap: 4px; margin: 16px 0; }
+.chain-node { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 6px; }
+.chain-node.big { background: var(--green-dim); border: 1px solid var(--green-border); }
+.chain-node.mid { background: var(--amber-dim); border: 1px solid var(--amber-border); }
+.chain-node.short { background: var(--red-dim); border: 1px solid var(--red-border); }
+.chain-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; width: 90px; flex-shrink: 0; }
+.chain-node.big .chain-label { color: var(--green); }
+.chain-node.mid .chain-label { color: var(--amber); }
+.chain-node.short .chain-label { color: var(--red); }
+.chain-desc { font-size: 12px; color: #b8b8c8; }
+.chain-arrow { text-align: center; color: var(--muted2); font-size: 12px; padding: 2px 0; }
+
+/* CHECKLIST */
+.checklist { list-style: none; }
+.checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: #b8b8c8; line-height: 1.5; }
+.checklist li:last-child { border-bottom: none; }
+.check-box { width: 16px; height: 16px; border: 1px solid var(--border2); border-radius: 3px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">Curso Premium MTT · Etapas Finales</div>
+    <h2>ICM Avanzado<br>Complete Guide</h2>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Fundamentos</div>
+      <a href="#mentalidad" class="nav-link active"><span class="nav-num">01</span>Cambio de mentalidad</a>
+      <a href="#chipev-icm" class="nav-link"><span class="nav-num">02</span>Chip EV vs ICM</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Conceptos Clave</div>
+      <a href="#bubble-factor" class="nav-link"><span class="nav-num">03</span>Bubble Factor</a>
+      <a href="#risk-premium" class="nav-link"><span class="nav-num">04</span>Risk Premium</a>
+      <a href="#cover-leverage" class="nav-link"><span class="nav-num">05</span>Cover Leverage</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Estrategia</div>
+      <a href="#pressure-chains" class="nav-link"><span class="nav-num">06</span>ICM Pressure Chains</a>
+      <a href="#jugador-atrapado" class="nav-link"><span class="nav-num">07</span>El jugador atrapado</a>
+      <a href="#attack-maps" class="nav-link"><span class="nav-num">08</span>Attack Maps</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Aplicación</div>
+      <a href="#future-game" class="nav-link"><span class="nav-num">09</span>Future Game Thinking</a>
+      <a href="#errores" class="nav-link"><span class="nav-num">10</span>Errores más caros</a>
+      <a href="#checklists" class="nav-link"><span class="nav-num">11</span>Checklists por etapa</a>
+      <a href="#quiz" class="nav-link"><span class="nav-num">12</span>Quiz interactivo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">● MTT Etapas Finales · 30 left o menos</div>
+  <h1>ICM<br><span>Avanzado</span></h1>
+  <p class="hero-sub">Bubble Factor, Cover Leverage, Risk Premium, Pressure Chains y Attack Maps. El sistema completo para dominar las estructuras de torneo cuando las cartas dejan de importar más que el stack dinámico.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-label">Secciones</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-label">Quiz spots</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Checklists</div></div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===================== 01 MENTALIDAD ===================== -->
+<section class="section" id="mentalidad">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div class="section-title-wrap">
+      <h2>El cambio de mentalidad</h2>
+      <p>Cómo dejan de pensar los jugadores promedio y cómo empiezan a pensar los especialistas</p>
+    </div>
+  </div>
+
+  <p>La mayoría de los jugadores de MTT llegan a los 30 left con la misma mentalidad que usan en early stages. Estudian rangos, c-bets, 3-bets y tamaños de apuesta. Todo eso sigue siendo relevante, pero en etapas finales aparecen fuerzas mucho más importantes que determinan las decisiones.</p>
+
+  <div class="grid-2">
+    <div class="card red">
+      <div class="card-title">Cómo piensa un jugador promedio</div>
+      <p>"Tengo AQ." → "Tengo TT." → "Tengo 18BB." El foco está en las cartas y en los chips como unidad neutral. El stack se mide en fichas, no en poder relativo.</p>
+    </div>
+    <div class="card green">
+      <div class="card-title">Cómo piensa un especialista en MTT</div>
+      <p>"¿Quién me cubre? ¿A quién cubro? ¿Quién está atrapado? ¿Quién tiene presión ICM? ¿Qué pasa si pierdo este pot? ¿Qué pasa si gano?" El foco está en la estructura, no en las cartas.</p>
+    </div>
+  </div>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>La mano sigue importando.</strong> Pero en el momento en que quedan 30 jugadores o menos, la mano deja de ser el factor principal. Los mejores jugadores de torneo construyen mentalmente un mapa de fuerzas antes de ver sus cartas.</p>
+  </div>
+
+  <h3>Las fuerzas que dominan en etapas finales</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>ICM:</strong> Las fichas dejan de valer lo mismo. La supervivencia tiene precio económico real.</div></li>
+    <li><span class="ri">→</span><div><strong>Bubble Factor:</strong> Perder fichas duele más que ganarlas. La asimetría es constante.</div></li>
+    <li><span class="ri">→</span><div><strong>Risk Premium:</strong> La equity necesaria para entrar en un pot se eleva significativamente.</div></li>
+    <li><span class="ri">→</span><div><strong>Cover Leverage:</strong> Poder eliminar a alguien es una herramienta de presión independiente de la mano.</div></li>
+    <li><span class="ri">→</span><div><strong>Saltos de premios:</strong> Cada eliminación redistribuye equity económica en toda la mesa.</div></li>
+    <li><span class="ri">→</span><div><strong>Distribución de stacks:</strong> El ecosistema completo define quién tiene poder y quién está atrapado.</div></li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 02 CHIP EV VS ICM ===================== -->
+<section class="section" id="chipev-icm">
+  <div class="section-header">
+    <span class="section-num blue">02</span>
+    <div class="section-title-wrap">
+      <h2>Chip EV vs ICM</h2>
+      <p>Por qué las fichas no son simétricas en etapas finales</p>
+    </div>
+  </div>
+
+  <p>Chip EV trata todas las fichas como equivalentes: ganar 20BB vale lo mismo que perder 20BB. Esto es razonablemente preciso en early stages. En etapas finales, esta lógica genera errores gravísimos.</p>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-label">Early Stages</div>
+      <div class="metric-value mv-green">Chip EV</div>
+      <div class="metric-sub">Fichas = valor neutro</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Bubble / FT</div>
+      <div class="metric-value mv-amber">ICM</div>
+      <div class="metric-sub">Supervivencia = valor real</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Impacto asimétrico</div>
+      <div class="metric-value mv-red">+≠−</div>
+      <div class="metric-sub">Perder duele más que ganar</div>
+    </div>
+  </div>
+
+  <h3>La asimetría del valor de las fichas</h3>
+  <p>Ganar 20BB puede mejorar tu posición. Perder 20BB puede eliminarte del torneo. Esa diferencia de consecuencias hace que las fichas no tengan valor simétrico. En ICM, el valor marginal de cada ficha ganada es menor que el costo marginal de cada ficha perdida.</p>
+
+  <div class="formula">
+    Valor ICM(ganar X fichas) &lt; Valor ICM(perder X fichas)
+    <span class="fc">Ejemplo: pasar de 20BB → 40BB vale menos que el costo de pasar de 20BB → 0BB (eliminación)</span>
+  </div>
+
+  <h3>Utilidad marginal decreciente del stack</h3>
+  <p>Este es uno de los fundamentos matemáticos del ICM: la utilidad de cada ficha adicional disminuye a medida que el stack crece.</p>
+
+  <div class="bar-row"><div class="bar-lbl">10BB → 20BB</div><div class="bar-track"><div class="bar-fill bf-green" style="width:90%">Impacto muy alto</div></div></div>
+  <div class="bar-row"><div class="bar-lbl">20BB → 35BB</div><div class="bar-track"><div class="bar-fill bf-amber" style="width:65%">Impacto medio-alto</div></div></div>
+  <div class="bar-row"><div class="bar-lbl">35BB → 55BB</div><div class="bar-track"><div class="bar-fill bf-amber" style="width:45%">Impacto medio</div></div></div>
+  <div class="bar-row"><div class="bar-lbl">55BB → 80BB</div><div class="bar-track"><div class="bar-fill bf-blue" style="width:28%">Impacto moderado</div></div></div>
+  <div class="bar-row"><div class="bar-lbl">80BB → 100BB</div><div class="bar-track"><div class="bar-fill bf-red" style="width:14%">Impacto bajo</div></div></div>
+
+  <div class="alert amber">
+    <span class="alert-icon">!</span>
+    <p><strong>Conclusión práctica:</strong> Doblarse de 10BB a 20BB transforma completamente tu torneo. Pasar de 80BB a 100BB aporta mucho menos valor relativo. Las decisiones deben evaluarse por impacto monetario real, no solo por cantidad de fichas.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 03 BUBBLE FACTOR ===================== -->
+<section class="section" id="bubble-factor">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <div class="section-title-wrap">
+      <h2>Bubble Factor</h2>
+      <p>Cuánto más costoso es perder fichas que ganarlas en cada situación</p>
+    </div>
+  </div>
+
+  <p>El Bubble Factor (BF) cuantifica la asimetría ICM en cada spot específico. Un BF de 2 significa que perder fichas en esa situación duele exactamente el doble que ganarlas vale.</p>
+
+  <h3>Escala de interpretación del BF</h3>
+  <div class="grid-4">
+    <div class="metric-card">
+      <div class="metric-label">BF ≈ 1.0</div>
+      <div class="metric-value mv-green">Cash</div>
+      <div class="metric-sub">Sin presión ICM real</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">BF ≈ 1.5</div>
+      <div class="metric-value mv-blue">Moderado</div>
+      <div class="metric-sub">Perder duele 50% más</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">BF ≈ 2.0</div>
+      <div class="metric-value mv-amber">Alto</div>
+      <div class="metric-sub">Perder duele el doble</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">BF &gt; 2.5</div>
+      <div class="metric-value mv-red">Extremo</div>
+      <div class="metric-sub">Bubble duro o FT corto</div>
+    </div>
+  </div>
+
+  <h3>La regla fundamental del Bubble Factor</h3>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">Cuando el BF aumenta → podés empujar MÁS</div>
+      <p>Los rivales tienen más razones para foldear porque el costo de perder creció para ellos también. Tu fold equity aumenta. Podés ampliar rangos de push y de 3-bet bluff.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">Cuando el BF aumenta → debés llamar MENOS</div>
+      <p>Este es el error más común. El costo de perder para vos también creció. Calls que eran neutros en chip EV se vuelven negativos en ICM. Tighteá significativamente tus rangos de call.</p>
+    </div>
+  </div>
+
+  <div class="alert red">
+    <span class="alert-icon">✗</span>
+    <p><strong>El error más costoso:</strong> Muchos jugadores entienden que pueden presionar más cuando el BF es alto. Casi ninguno reduce sus calls con la misma intensidad. El BF opera en ambas direcciones simultáneamente. Ignorar el lado de las calls es donde se pierde la mayor parte del valor.</p>
+  </div>
+
+  <h3>BF según tipo de stack</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tipo de stack</th><th>BF típico</th><th>Impacto en push</th><th>Impacto en call</th><th>Rol en la mesa</th></tr></thead>
+      <tbody>
+        <tr><td class="td-bold">Big Stack (cubridor)</td><td class="td-green">~1.2–1.5</td><td class="td-green">Puede empujar amplio</td><td class="td-amber">Llama moderadamente</td><td>Agresor principal</td></tr>
+        <tr><td class="td-bold">Stack Medio</td><td class="td-amber">~1.5–2.2</td><td class="td-amber">Presión moderada</td><td class="td-red">Debe restringir calls</td><td>Vulnerable, víctima potencial</td></tr>
+        <tr><td class="td-bold">Short Stack</td><td class="td-red">~1.0–1.3</td><td class="td-amber">Push o fold</td><td class="td-green">Puede llamar más amplio</td><td>Busca doblar con fold equity</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 04 RISK PREMIUM ===================== -->
+<section class="section" id="risk-premium">
+  <div class="section-header">
+    <span class="section-num amber">04</span>
+    <div class="section-title-wrap">
+      <h2>Risk Premium</h2>
+      <p>La equity adicional que necesitás para justificar arriesgar tu supervivencia</p>
+    </div>
+  </div>
+
+  <p>El Risk Premium es el sobrecosto en equity que exige el ICM para que una decisión sea rentable. Sin ICM, muchos spots requieren aproximadamente 50% de equity. Con ICM, esa cifra puede subir considerablemente.</p>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-label">Equity requerida sin ICM</div>
+      <div class="metric-value mv-green">~50%</div>
+      <div class="metric-sub">Chip EV neutro</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Con BF moderado (1.5)</div>
+      <div class="metric-value mv-amber">~55–58%</div>
+      <div class="metric-sub">+5–8pp de Risk Premium</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Con BF alto (2.0+)</div>
+      <div class="metric-value mv-red">~60–65%</div>
+      <div class="metric-sub">+10–15pp de Risk Premium</div>
+    </div>
+  </div>
+
+  <h3>Factores que elevan el Risk Premium</h3>
+  <ul class="rule-list">
+    <li><span class="ri red">↑</span><div><strong>¿Te cubre el rival?</strong> Si sí, podés ser eliminado. El Risk Premium sube drásticamente porque la consecuencia de perder es la salida del torneo.</div></li>
+    <li><span class="ri amber">↑</span><div><strong>¿Hay shorts vivos en la mesa?</strong> Si sí, cuantos más shorts haya, mayor el incentivo a esperar que busten. Tu supervivencia vale más.</div></li>
+    <li><span class="ri amber">↑</span><div><strong>¿Estás cerca de un salto de premios?</strong> Si sí, la siguiente eliminación tiene impacto económico directo en todos los jugadores vivos.</div></li>
+    <li><span class="ri">↑</span><div><strong>¿Tenés leverage sobre jugadores más débiles?</strong> Cada jugador que podés eliminar representa equity futura. Perder ese leverage tiene costo.</div></li>
+  </ul>
+
+  <div class="formula">
+    Equity_requerida = 50% + Risk_Premium
+    <span class="fc">Ejemplo con BF 2.0 contra un rival que te cubre: podés necesitar 62–65% para que el call sea ICM+</span>
+  </div>
+
+  <h3>Preguntas para estimar el Risk Premium en cada spot</h3>
+  <div class="grid-2">
+    <div class="card amber">
+      <div class="card-title">Preguntas que elevan el RP</div>
+      <p>¿Me cubre? ¿Quedan shorts detrás de mí? ¿Hay un salto de premios inminente? ¿Puedo quedar eliminado en este pot? Si la mayoría de estas respuestas son sí, necesitás mucho margen de equity para continuar.</p>
+    </div>
+    <div class="card green">
+      <div class="card-title">Situaciones donde el RP baja</div>
+      <p>Sos el cubridor. No hay shorts en riesgo inmediato. Estás lejos de cualquier salto de premios. Tu eliminación no está en juego. En estos casos tu equity requerida se acerca más al chip EV estándar.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 05 COVER LEVERAGE ===================== -->
+<section class="section" id="cover-leverage">
+  <div class="section-header">
+    <span class="section-num blue">05</span>
+    <div class="section-title-wrap">
+      <h2>Cover Leverage</h2>
+      <p>La capacidad de presionar porque podés terminar el torneo de alguien</p>
+    </div>
+  </div>
+
+  <p>Cover Leverage no es solo tener más fichas que alguien. Es tener la capacidad de eliminar a ese jugador del torneo. Esa posibilidad de eliminación es una herramienta de presión real, independiente de la mano que tengas.</p>
+
+  <h3>La diferencia entre cubrir y tener leverage</h3>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">Hero = 60BB · Villano = 25BB → Hero tiene leverage</div>
+      <p>Si hero entra en el pot y gana, villano queda eliminado. Esa amenaza de eliminación eleva el Risk Premium del villano. Hero puede presionar con rangos más amplios porque sabe que el costo de llamar para el rival es mayor.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">Hero = 60BB · Villano = 120BB → Hero NO tiene leverage</div>
+      <p>Si hero entra en el pot y pierde, hero queda eliminado. El leverage está del lado opuesto. Hero debe ajustar su juego como si fuera el jugador presionado, no el agresor.</p>
+    </div>
+  </div>
+
+  <div class="alert blue">
+    <span class="alert-icon">→</span>
+    <p><strong>Regla fundamental:</strong> No cuentes fichas. Contá vidas de torneo. La pregunta relevante no es "¿cuántas fichas tengo?" sino "¿a quién puedo eliminar?" y "¿quién puede eliminarme?"</p>
+  </div>
+
+  <h3>Aplicaciones prácticas del Cover Leverage</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>Abrir más desde cualquier posición</strong> contra jugadores que cubrís. Sus rangos de call se reducen automáticamente por su Risk Premium elevado.</div></li>
+    <li><span class="ri">→</span><div><strong>3-betear más agresivamente</strong> cuando cubrís al abridor. La amenaza de eliminación hace que llamar o 4-betear sea mucho más caro para ellos.</div></li>
+    <li><span class="ri">→</span><div><strong>Generar más folds</strong> sin necesidad de manos fuertes. Tu leverage hace trabajo que antes hacía la equity de tu mano.</div></li>
+    <li><span class="ri amber">!</span><div><strong>No convertirte en víctima:</strong> Cuando alguien con más fichas te presiona, su leverage opera sobre vos. Reconocé ese dinamismo antes de tomar decisiones.</div></li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 06 PRESSURE CHAINS ===================== -->
+<section class="section" id="pressure-chains">
+  <div class="section-header">
+    <span class="section-num purple">06</span>
+    <div class="section-title-wrap">
+      <h2>ICM Pressure Chains</h2>
+      <p>Cómo se transmite la presión ICM por la mesa de forma encadenada</p>
+    </div>
+  </div>
+
+  <p>La presión ICM no es una relación de uno a uno. Se transmite como una cadena: el big stack presiona al stack medio, que a su vez presiona al stack medio-corto, que presiona al short stack. Cada jugador recibe y transfiere presión simultáneamente.</p>
+
+  <h3>Diagrama de la cadena de presión</h3>
+  <div class="chain">
+    <div class="chain-node big">
+      <div class="chain-label">Big Stack</div>
+      <div class="chain-desc">Ejerce presión máxima. BF bajo. Puede atacar a casi todos. Tiene leverage sobre la mesa.</div>
+    </div>
+    <div class="chain-arrow">↓ presiona</div>
+    <div class="chain-node mid">
+      <div class="chain-label">Stack Medio</div>
+      <div class="chain-desc">Recibe presión del big stack. Transmite presión al stack medio-corto. BF alto. Zona de máxima vulnerabilidad.</div>
+    </div>
+    <div class="chain-arrow">↓ presiona</div>
+    <div class="chain-node mid">
+      <div class="chain-label">Medio-Corto</div>
+      <div class="chain-desc">Atrapado entre medios y shorts. Debe decidir si ataca hacia abajo o se defiende hacia arriba.</div>
+    </div>
+    <div class="chain-arrow">↓ presiona</div>
+    <div class="chain-node short">
+      <div class="chain-label">Short Stack</div>
+      <div class="chain-desc">Recibe presión de todos. Ventaja: las ciegas le fuerzan a actuar pronto. BF relativo más bajo por necesidad.</div>
+    </div>
+  </div>
+
+  <div class="alert purple">
+    <span class="alert-icon">→</span>
+    <p><strong>Idea central:</strong> No todos los jugadores tienen la misma libertad para competir en un pot. Antes de cada decisión, identificá en qué punto de la cadena estás. Algunos jugadores tienen poder, otros están atrapados.</p>
+  </div>
+
+  <h3>Cómo usar la cadena de presión</h3>
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">Si estás arriba de la cadena</div>
+      <p>Usá tu posición para presionar a los de abajo. Aumentá la frecuencia de aperturas contra jugadores que cubris. Tu BF bajo te da libertad de acción que ellos no tienen.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">Si estás abajo de la cadena</div>
+      <p>Evitá enfrentamientos con quien te cubre. Buscá atacar hacia abajo, donde tenés leverage. No intentés defenderte hacia arriba de la cadena sin manos muy fuertes.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 07 JUGADOR ATRAPADO ===================== -->
+<section class="section" id="jugador-atrapado">
+  <div class="section-header">
+    <span class="section-num red">07</span>
+    <div class="section-title-wrap">
+      <h2>El jugador atrapado</h2>
+      <p>La víctima ideal de la presión ICM y por qué foldea tanto</p>
+    </div>
+  </div>
+
+  <p>El jugador atrapado es el concepto más importante de la estrategia ICM avanzada. Identificar quién está atrapado en la mesa es el primer paso para construir un Attack Map efectivo.</p>
+
+  <h3>Definición de jugador atrapado</h3>
+  <div class="card blue">
+    <div class="card-title">Condiciones para estar atrapado</div>
+    <p>El jugador atrapado tiene <strong>stacks más pequeños detrás</strong> (lo que eleva su incentivo de supervivencia) y <strong>stacks más grandes delante</strong> (lo que lo expone a presión ICM constante). Está en la peor posición relativa posible: no puede crecer fácilmente sin pelear contra quien lo cubre, y no puede esperar indefinidamente porque la estructura avanza.</p>
+  </div>
+
+  <h3>Ejemplo concreto</h3>
+  <div class="formula">
+    Hero = 24BB
+    <span class="fc">Stacks en la mesa: 5BB · 6BB · 8BB · 40BB · 50BB · 70BB</span>
+    <span class="fc">Hero está atrapado: no quiere bustear antes que los 3 cortos, pero no puede pelear cómodamente contra los 3 grandes.</span>
+  </div>
+
+  <h3>Por qué el jugador atrapado foldea tanto</h3>
+  <ul class="rule-list">
+    <li><span class="ri red">✗</span><div><strong>No puede bustear antes que los shorts:</strong> Cada short que sigue vivo le da valor económico. Si el hero bustedea primero, pierde esa equity futura de subir en el pago.</div></li>
+    <li><span class="ri red">✗</span><div><strong>No puede pelear contra los big stacks:</strong> Cualquier confrontación con alguien que lo cubre pone en juego su torneo completo. El Risk Premium es demasiado alto.</div></li>
+    <li><span class="ri">→</span><div><strong>Resultado estructural:</strong> Foldea más. Defiende menos. Paga menos. Esto lo convierte en la víctima ideal de la presión.</div></li>
+  </ul>
+
+  <div class="alert red">
+    <span class="alert-icon">!</span>
+    <p><strong>Conclusión clave:</strong> El stack medio sufre más presión ICM que el short stack. Esto es contraintuitivo. El short stack ya está en modo supervivencia activa y su BF relativo es menor porque ya no tiene tanto que perder en términos de ladder. El stack medio está atrapado entre dos mundos.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 08 ATTACK MAPS ===================== -->
+<section class="section" id="attack-maps">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <div class="section-title-wrap">
+      <h2>Attack Maps</h2>
+      <p>El mapa mental de presión basado en relaciones de stacks, no en cartas</p>
+    </div>
+  </div>
+
+  <p>Un Attack Map es un sistema de clasificación mental que dividís antes de cada órbita. No se basa en ranges. Se basa en quién puede atacarte, a quién podés atacar, y quién está atrapado. Se actualiza en cada eliminación.</p>
+
+  <h3>Las tres zonas del Attack Map</h3>
+  <div class="attack-map">
+    <div class="am-cell am-attack">
+      <div class="am-label">Zona de ataque</div>
+      <div class="am-desc">Jugadores que cubrís y que además están atrapados o tienen Risk Premium alto. Podés presionar con rangos amplios.</div>
+    </div>
+    <div class="am-cell am-neutral">
+      <div class="am-label">Zona neutral</div>
+      <div class="am-desc">Jugadores de stack similar. Confrontaciones son costosas para ambos lados. Evitar sin manos fuertes.</div>
+    </div>
+    <div class="am-cell am-danger">
+      <div class="am-label">Zona de peligro</div>
+      <div class="am-desc">Jugadores que te cubren. Cualquier confrontación pone tu torneo en riesgo. Requieren manos muy fuertes o folds amplios.</div>
+    </div>
+  </div>
+
+  <h3>Cómo construir tu Attack Map en 4 pasos</h3>
+  <ul class="rule-list">
+    <li><span class="ri">01</span><div><strong>¿Quién me cubre?</strong> Esos jugadores entran en tu zona de peligro. Anotá sus posiciones en la mesa.</div></li>
+    <li><span class="ri">02</span><div><strong>¿A quién cubro?</strong> Esos son candidatos para tu zona de ataque. Pero cobertura sola no es suficiente.</div></li>
+    <li><span class="ri">03</span><div><strong>¿Quién está atrapado?</strong> Jugadores con shorts detrás y big stacks delante. Esos son objetivos prioritarios en tu zona de ataque.</div></li>
+    <li><span class="ri">04</span><div><strong>¿Quién tiene mayor Risk Premium?</strong> Jugadores cerca de saltos de premios, con muchos shorts detrás, o cubiertos por múltiples rivales. Combiná con el paso 3 para identificar los mejores objetivos.</div></li>
+  </ul>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>El objetivo prioritario:</strong> Cuando un jugador cumple los tres criterios (lo cubrís, está atrapado, y tiene Risk Premium alto) es la víctima ideal. Podés presionarlo con rangos muy amplios porque su capacidad de respuesta es estructuralmente limitada.</p>
+  </div>
+
+  <h3>El core del juego ICM avanzado: tres preguntas</h3>
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-label">Pregunta 1</div>
+      <div class="metric-value mv-green">¿Lo cubro?</div>
+      <div class="metric-sub">Sí → tenés leverage</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Pregunta 2</div>
+      <div class="metric-value mv-amber">¿Tiene shorts?</div>
+      <div class="metric-sub">Sí → su RP aumenta</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Pregunta 3</div>
+      <div class="metric-value mv-red">¿Está atrapado?</div>
+      <div class="metric-sub">Sí → es tu objetivo</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 09 FUTURE GAME ===================== -->
+<section class="section" id="future-game">
+  <div class="section-header">
+    <span class="section-num blue">09</span>
+    <div class="section-title-wrap">
+      <h2>Future Game Thinking</h2>
+      <p>Por qué las decisiones deben evaluarse por cómo cambia el ecosistema, no solo la mano</p>
+    </div>
+  </div>
+
+  <p>Uno de los errores más comunes es evaluar cada decisión en aislamiento. Los especialistas en MTT piensan varios pasos adelante: ¿qué ocurrirá en las próximas órbitas si tomo esta decisión ahora?</p>
+
+  <h3>El valor de esperar</h3>
+  <div class="card blue">
+    <div class="card-title">Ejemplo de Future Game Thinking</div>
+    <p>Tenés 16BB. En la mesa hay tres jugadores con 3BB, 4BB y 5BB. Aparece un spot marginal de push: chip EV levemente positivo. En Future Game Thinking, la pregunta es: ¿cuánto vale esperar a que uno de esos tres shorts bustee? Si bustear uno de ellos te sube un pago y te da leverage adicional, esperar puede valer más que asumir ese riesgo marginal ahora.</p>
+  </div>
+
+  <h3>Preguntas de Future Game</h3>
+  <ul class="rule-list">
+    <li><span class="ri">→</span><div><strong>¿Qué cambia si espero una órbita?</strong> En muchos casos, la estructura cambia favorablemente sin que hagas nada.</div></li>
+    <li><span class="ri">→</span><div><strong>¿Qué pasa con el ecosistema si gano este pot?</strong> ¿Te convertís en big stack? ¿Adquirís leverage sobre nuevos jugadores?</div></li>
+    <li><span class="ri">→</span><div><strong>¿Qué pasa con el ecosistema si lo perdés?</strong> ¿Quedás atrapado? ¿Perdés leverage? ¿Quedás eliminado antes que shorts?</div></li>
+    <li><span class="ri">→</span><div><strong>¿Quién está en blind corto y va a actuar pronto?</strong> A veces el tiempo trabaja a tu favor. No todos los spots requieren acción inmediata.</div></li>
+  </ul>
+
+  <div class="alert amber">
+    <span class="alert-icon">!</span>
+    <p><strong>La trampa del chip EV positivo:</strong> Una jugada puede ser chip EV+ pero ICM- si deteriora tu posición relativa en la estructura o si elimina pronto opciones de explotación futura. No estudies solamente la mano. Estudiá la evolución futura del torneo.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 10 ERRORES ===================== -->
+<section class="section" id="errores">
+  <div class="section-header">
+    <span class="section-num red">10</span>
+    <div class="section-title-wrap">
+      <h2>Los errores más caros</h2>
+      <p>Los cinco fallos que más fichas cuestan en etapas ICM</p>
+    </div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error 1 · Jugar cartas en lugar de estructuras</div>
+    <div class="error-desc">Ver JJ y pensar "tengo buena mano, voy". En etapas finales, JJ contra un rival que te cubre cerca del bubble puede ser un fold correcto. La mano importa, pero la estructura manda.</div>
+    <div class="error-fix">→ Antes de ver tus cartas, construí tu Attack Map. Las cartas confirman o modifican una decisión que ya estaba mayormente tomada.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error 2 · Pagar porque la mano parece fuerte</div>
+    <div class="error-desc">Llamar un all-in con KK porque "KK es muy fuerte" sin evaluar el ICM de la situación. Con BF alto, KK puede ser un fold contra un rival que te cubre si la equity requerida supera lo que KK ofrece.</div>
+    <div class="error-fix">→ La fortaleza de una mano siempre es relativa al Risk Premium del spot. KK con BF 2.0 en spot de eliminación no es lo mismo que KK en early stage.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error 3 · Pelear contra stacks que te cubren</div>
+    <div class="error-desc">Entrar en confrontaciones innecesarias con quien te puede eliminar. Cada vez que esto ocurre, el costo ICM es enorme incluso si ganás (ganás menos de lo que valía el riesgo).</div>
+    <div class="error-fix">→ Contra stacks que te cubren, necesitás manos muy fuertes. El umbral sube drásticamente. Buscá tus batallas hacia abajo, no hacia arriba.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error 4 · Ignorar los shorts</div>
+    <div class="error-desc">No tener en cuenta cuántos jugadores cortos están vivos. Cada short que sigue jugando tiene valor económico para vos. Bustear antes que ellos destruye esa equity.</div>
+    <div class="error-fix">→ Siempre sabé cuántos jugadores hay por debajo de vos y cuántos pisos de pago quedan. Esa información cambia el valor de cada decisión.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Error 5 · No actualizar la estructura después de cada eliminación</div>
+    <div class="error-desc">El Attack Map que construiste hace tres manos puede ser completamente inválido ahora. Cada eliminación redistribuye leverage, cambia quién está atrapado y altera los Risk Premiums de todos.</div>
+    <div class="error-fix">→ Reconstruí tu Attack Map después de cada eliminación. No es trabajo opcional. Es obligatorio para jugar correctamente las próximas órbitas.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 11 CHECKLISTS ===================== -->
+<section class="section" id="checklists">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <div class="section-title-wrap">
+      <h2>Checklists por etapa</h2>
+      <p>Qué revisar en cada órbita según la fase del torneo</p>
+    </div>
+  </div>
+
+  <h3>Checklist de 30 left</h3>
+  <div class="card green">
+    <div class="card-title">Revisá esto en cada órbita</div>
+    <ul class="checklist">
+      <li><div class="check-box"></div><div>¿Quiénes son los cinco stacks más cortos de la mesa?</div></li>
+      <li><div class="check-box"></div><div>¿Quiénes son los cinco stacks más grandes de la mesa?</div></li>
+      <li><div class="check-box"></div><div>¿Quién me cubre directamente?</div></li>
+      <li><div class="check-box"></div><div>¿A quién cubro directamente?</div></li>
+      <li><div class="check-box"></div><div>¿Quién está atrapado (shorts detrás + bigs delante)?</div></li>
+      <li><div class="check-box"></div><div>¿Quién tiene leverage sobre mí?</div></li>
+      <li><div class="check-box"></div><div>¿Sobre quién tengo leverage?</div></li>
+      <li><div class="check-box"></div><div>¿Quién tiene mayor Risk Premium en este momento?</div></li>
+      <li><div class="check-box"></div><div>¿Cuál es mi Attack Map actualizado?</div></li>
+    </ul>
+  </div>
+
+  <h3>Checklist de 18 left</h3>
+  <div class="card amber">
+    <div class="card-title">Revisá esto en cada órbita</div>
+    <ul class="checklist">
+      <li><div class="check-box"></div><div>¿Qué jugadores están esperando ladder sin jugar?</div></li>
+      <li><div class="check-box"></div><div>¿Qué stacks necesitan doblarse para seguir siendo relevantes?</div></li>
+      <li><div class="check-box"></div><div>¿Qué stacks no pueden defender correctamente sus blinds?</div></li>
+      <li><div class="check-box"></div><div>¿Quién puede eliminarme con un call o push?</div></li>
+      <li><div class="check-box"></div><div>¿A quién puedo eliminar yo en este momento?</div></li>
+      <li><div class="check-box"></div><div>¿Qué cambios en la estructura produciría la próxima eliminación?</div></li>
+    </ul>
+  </div>
+
+  <h3>Checklist de mesa final</h3>
+  <div class="card blue">
+    <div class="card-title">Revisá esto en cada órbita</div>
+    <ul class="checklist">
+      <li><div class="check-box"></div><div>¿Quién tiene el mayor leverage en este momento?</div></li>
+      <li><div class="check-box"></div><div>¿Quién está atrapado entre stacks en la mesa final?</div></li>
+      <li><div class="check-box"></div><div>¿Quién está protegiendo un salto de premios importante?</div></li>
+      <li><div class="check-box"></div><div>¿Qué saltos de premios se aproximan y quién los siente más?</div></li>
+      <li><div class="check-box"></div><div>¿Qué rivales están foldeando demasiado por presión ICM?</div></li>
+      <li><div class="check-box"></div><div>¿Quién está obligado a actuar en las próximas órbitas?</div></li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ===================== 12 QUIZ ===================== -->
+<section class="section" id="quiz">
+  <div class="section-header">
+    <span class="section-num purple">12</span>
+    <div class="section-title-wrap">
+      <h2>Quiz interactivo</h2>
+      <p>5 spots ICM para poner a prueba tu comprensión del sistema</p>
+    </div>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="quiz-card" id="quiz1">
+    <div class="quiz-q">1. ¿Cuándo el Bubble Factor sube, qué deberías hacer?</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz1')">A. Solo empujar más con tus manos fuertes</button>
+      <button class="quiz-opt" onclick="answer(this,'correct','quiz1')">B. Empujar más rangos Y reducir significativamente tus calls</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz1')">C. Jugar más pasivo en general para proteger tu stack</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz1')">D. El BF no cambia tu estrategia, solo afecta a los cortos</button>
+    </div>
+    <div class="quiz-exp" id="exp1">El Bubble Factor opera en ambas direcciones simultáneamente. Sí podés presionar más (los rivales tienen mayor costo de llamar), pero al mismo tiempo debés reducir tus calls porque el costo de perder para vos también creció. El error más común es ajustar solo el lado de los pushes.</div>
+  </div>
+
+  <!-- QUIZ 2 -->
+  <div class="quiz-card" id="quiz2">
+    <div class="quiz-q">2. ¿Qué define al "jugador atrapado" en ICM?</div>
+    <div class="quiz-scenario">Mesa de 9: Hero = 22BB · Stacks: 3BB, 4BB, 6BB, 45BB, 60BB, 80BB, 100BB</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz2')">A. El jugador con menos fichas en la mesa</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz2')">B. Cualquier jugador que no puede cubrir al big stack</button>
+      <button class="quiz-opt" onclick="answer(this,'correct','quiz2')">C. El jugador con shorts detrás y big stacks delante que foldea estructuralmente</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz2')">D. El jugador con mayor Risk Premium absoluto de la mesa</button>
+    </div>
+    <div class="quiz-exp" id="exp2">En este ejemplo, Hero con 22BB es el jugador atrapado. Tiene tres shorts detrás (3BB, 4BB, 6BB) que incentivan su supervivencia, y cuatro big stacks delante que pueden presionarlo constantemente. No puede bustear antes que los shorts ni pelear cómodamente contra los grandes. Resultado: foldea estructuralmente y se convierte en víctima ideal.</div>
+  </div>
+
+  <!-- QUIZ 3 -->
+  <div class="quiz-card" id="quiz3">
+    <div class="quiz-q">3. Hero = 55BB · Villano = 20BB. ¿Qué tipo de leverage tiene Hero?</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz3')">A. Ninguno, porque el villano puede foldear</button>
+      <button class="quiz-opt" onclick="answer(this,'correct','quiz3')">B. Cover Leverage: puede eliminar al villano y eso eleva el Risk Premium del villano</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz3')">C. Solo chip leverage, pero no ICM leverage porque el villano puede sobrevivir</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz3')">D. El villano tiene más leverage porque tiene menos que perder</button>
+    </div>
+    <div class="quiz-exp" id="exp3">Hero tiene Cover Leverage: puede terminar el torneo del villano. Eso hace que el Risk Premium del villano sea alto, lo que significa que el villano necesita mucha más equity para llamar cualquier apuesta o push de Hero. Hero puede presionar con rangos amplios justamente porque la amenaza de eliminación es real y tiene precio económico para el villano.</div>
+  </div>
+
+  <!-- QUIZ 4 -->
+  <div class="quiz-card" id="quiz4">
+    <div class="quiz-q">4. En una mano con BF = 2.0, sin ICM necesitarías ~50% de equity para un call neutral. ¿Qué equity aproximada necesitás ahora?</div>
+    <div class="quiz-scenario">Spot: bubble duro, rival te cubre, hay 4 shorts vivos por debajo tuyo</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz4')">A. ~50% — el BF no cambia la equity requerida para el call</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz4')">B. ~52% — solo un pequeño ajuste</button>
+      <button class="quiz-opt" onclick="answer(this,'correct','quiz4')">C. ~60–65% — el Risk Premium eleva significativamente el umbral</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz4')">D. ~75% — debés tener casi el doble de la equity normal</button>
+    </div>
+    <div class="quiz-exp" id="exp4">Con BF = 2.0 + rival que te cubre + shorts vivos, el Risk Premium es muy alto. La equity requerida sube a ~60–65%. Esto significa que calls que parecen rentables en chip EV (50%+) son jugadas negativas en ICM. En este spot, manos como AJs o 88 pueden ser folds correctos aunque sean ligeramente favoritas en equity bruta.</div>
+  </div>
+
+  <!-- QUIZ 5 -->
+  <div class="quiz-card" id="quiz5">
+    <div class="quiz-q">5. ¿Con qué frecuencia deberías reconstruir tu Attack Map?</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz5')">A. Una vez por nivel de ciegas</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz5')">B. Al inicio de cada mesa</button>
+      <button class="quiz-opt" onclick="answer(this,'correct','quiz5')">C. Después de cada eliminación, porque el ecosistema cambia completamente</button>
+      <button class="quiz-opt" onclick="answer(this,'wrong','quiz5')">D. Solo cuando cambiás de mesa</button>
+    </div>
+    <div class="quiz-exp" id="exp5">Cada eliminación redistribuye leverage, cambia quién está atrapado y altera los Risk Premiums de todos los jugadores vivos. Un Attack Map que era válido hace tres manos puede ser completamente incorrecto después de una eliminación. Los especialistas reconstruyen el mapa mental después de cada salida.</div>
+  </div>
+
+  <!-- CHEATSHEET FINAL -->
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">ICM Advanced — Cheatsheet de referencia rápida</div>
+    <div class="cheatsheet-body">
+      <div class="grid-2">
+        <div>
+          <h4>Cuando BF sube</h4>
+          <ul class="rule-list">
+            <li><span class="ri">↑</span><div>Ampliá rangos de push y 3-bet bluff</div></li>
+            <li><span class="ri red">↓</span><div>Reducí calls considerablemente</div></li>
+            <li><span class="ri">→</span><div>Los folds de tus rivales se vuelven más frecuentes</div></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Cuando tenés Cover Leverage</h4>
+          <ul class="rule-list">
+            <li><span class="ri">→</span><div>Abrí más contra a quienes cubrís</div></li>
+            <li><span class="ri">→</span><div>3-beteá más a jugadores atrapados</div></li>
+            <li><span class="ri red">✗</span><div>Evitá confrontaciones con quien te cubre</div></li>
+          </ul>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <h4>Las 3 preguntas del Attack Map</h4>
+        <div class="grid-3">
+          <div class="metric-card"><div class="metric-label">Pregunta 1</div><div class="metric-value mv-green" style="font-size:14px">¿Lo cubro?</div><div class="metric-sub">Sí = leverage</div></div>
+          <div class="metric-card"><div class="metric-label">Pregunta 2</div><div class="metric-value mv-amber" style="font-size:14px">¿Tiene shorts?</div><div class="metric-sub">Sí = RP alto</div></div>
+          <div class="metric-card"><div class="metric-label">Pregunta 3</div><div class="metric-value mv-red" style="font-size:14px">¿Está atrapado?</div><div class="metric-sub">Sí = objetivo</div></div>
+        </div>
+      </div>
+      <div class="alert green" style="margin-top:16px">
+        <span class="alert-icon">→</span>
+        <p><strong>Los jugadores promedio observan sus cartas. Los buenos jugadores observan los stacks. Los especialistas en MTT observan la red completa de leverage, risk premium, presión ICM y supervivencia.</strong></p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</div><!-- /content -->
+</main>
+
+<script>
+function answer(btn, result, quizId) {
+  const card = document.getElementById(quizId);
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  btn.classList.add(result);
+  const exp = document.getElementById('exp' + quizId.replace('quiz',''));
+  if (exp) exp.style.display = 'block';
+}
+
+// Active nav on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
