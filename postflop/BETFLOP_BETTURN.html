@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bet Flop → Bet Turn — Manual Base MTT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --bg: #080809;
+  --bg2: #101012;
+  --bg3: #18181c;
+  --bg4: #202025;
+  --border: #25252b;
+  --border2: #2e2e36;
+  --text: #e2e2e8;
+  --muted: #7a7a88;
+  --muted2: #5a5a66;
+  --green: #22d07a;
+  --green-dim: #0d2b1a;
+  --green-border: rgba(34,208,122,0.2);
+  --red: #f05a5a;
+  --red-dim: #2a1010;
+  --red-border: rgba(240,90,90,0.2);
+  --amber: #f0a830;
+  --amber-dim: #2a1e08;
+  --amber-border: rgba(240,168,48,0.2);
+  --blue: #5b9cf6;
+  --blue-dim: #0e1e38;
+  --blue-border: rgba(91,156,246,0.2);
+  --purple: #a78bfa;
+  --purple-dim: #1a1030;
+  --purple-border: rgba(167,139,250,0.2);
+  --accent: #22d07a;
+  --sidebar-w: 260px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 14px;
+  display: flex;
+  min-height: 100vh;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sidebar-logo h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-nav { padding: 12px 0; flex: 1; }
+.nav-section { margin-bottom: 4px; }
+.nav-section-title {
+  font-size: 9px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 8px 20px 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  line-height: 1.3;
+}
+.nav-link:hover { color: var(--text); background: var(--bg3); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--green-dim); }
+.nav-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted2); flex-shrink: 0; }
+
+/* ── MAIN ── */
+.main { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+
+/* ── HERO ── */
+.hero {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 64px 52px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(34,208,122,0.055) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero::after {
+  content: 'BB';
+  position: absolute;
+  right: 52px; top: 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 160px;
+  font-weight: 800;
+  color: rgba(34,208,122,0.04);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.04em;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-badge-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.hero h1 .arrow { color: var(--accent); }
+.hero-subtitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+.hero-desc {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 520px;
+  line-height: 1.75;
+  margin-bottom: 36px;
+}
+.hero-stats { display: flex; gap: 36px; flex-wrap: wrap; }
+.hero-stat-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.hero-stat-label { font-size: 11px; color: var(--muted); }
+
+/* ── CONTENT ── */
+.content { padding: 0 64px 100px; max-width: 880px; }
+.section { padding-top: 64px; }
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--green-dim);
+  border: 1px solid var(--green-border);
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.section-num.red    { color: var(--red);    background: var(--red-dim);    border-color: var(--red-border); }
+.section-num.amber  { color: var(--amber);  background: var(--amber-dim);  border-color: var(--amber-border); }
+.section-num.blue   { color: var(--blue);   background: var(--blue-dim);   border-color: var(--blue-border); }
+.section-num.purple { color: var(--purple); background: var(--purple-dim); border-color: var(--purple-border); }
+
+.section-title-wrap h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.section-title-wrap p { font-size: 13px; color: var(--muted); margin-top: 5px; }
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+  margin: 32px 0 14px;
+}
+h4 {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 20px 0 10px;
+  font-family: 'JetBrains Mono', monospace;
+}
+p { color: #b8b8c8; margin-bottom: 12px; font-size: 13.5px; line-height: 1.75; }
+p:last-child { margin-bottom: 0; }
+strong { color: var(--text); font-weight: 500; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.card.green  { border-left: 3px solid var(--green); }
+.card.red    { border-left: 3px solid var(--red); }
+.card.amber  { border-left: 3px solid var(--amber); }
+.card.blue   { border-left: 3px solid var(--blue); }
+.card.purple { border-left: 3px solid var(--purple); }
+.card-title  { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 8px; font-family: 'Syne', sans-serif; }
+
+/* ── GRIDS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+
+/* ── METRIC CARDS ── */
+.metric-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+.metric-label { font-size: 10px; color: var(--muted); margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.metric-value { font-size: 22px; font-weight: 600; line-height: 1; margin-bottom: 4px; font-family: 'Syne', sans-serif; }
+.metric-sub   { font-size: 11px; color: var(--muted); }
+.mv-green  { color: var(--green); }
+.mv-red    { color: var(--red); }
+.mv-amber  { color: var(--amber); }
+.mv-blue   { color: var(--blue); }
+.mv-purple { color: var(--purple); }
+
+/* ── ALERTS ── */
+.alert {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-size: 13px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.alert-icon { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+.alert p { margin: 0; line-height: 1.65; }
+.alert.green  { background: var(--green-dim);  border: 1px solid var(--green-border); }
+.alert.green  .alert-icon, .alert.green  p { color: #7ee8b0; }
+.alert.red    { background: var(--red-dim);    border: 1px solid var(--red-border); }
+.alert.red    .alert-icon, .alert.red    p { color: #f09090; }
+.alert.amber  { background: var(--amber-dim);  border: 1px solid var(--amber-border); }
+.alert.amber  .alert-icon, .alert.amber  p { color: #f0c070; }
+.alert.blue   { background: var(--blue-dim);   border: 1px solid var(--blue-border); }
+.alert.blue   .alert-icon, .alert.blue   p { color: #90b8f8; }
+.alert.purple { background: var(--purple-dim); border: 1px solid var(--purple-border); }
+.alert.purple .alert-icon, .alert.purple p { color: #c4b0fc; }
+
+/* ── FORMULA ── */
+.formula {
+  background: var(--bg3);
+  border: 1px solid var(--green-border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--green);
+  line-height: 1.9;
+}
+.formula .fc {
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  display: block;
+  margin-top: 5px;
+}
+
+/* ── RULE LIST ── */
+.rule-list { list-style: none; }
+.rule-list li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: #b8b8c8;
+  align-items: flex-start;
+  line-height: 1.65;
+}
+.rule-list li:last-child { border-bottom: none; }
+.ri { color: var(--accent); flex-shrink: 0; font-size: 11px; margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.ri.red   { color: var(--red); }
+.ri.amber { color: var(--amber); }
+.ri.blue  { color: var(--blue); }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th {
+  background: var(--bg3);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td { padding: 10px 16px; border-bottom: 1px solid var(--border); color: #b8b8c8; vertical-align: top; line-height: 1.6; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.012); }
+.td-mono   { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.td-green  { color: var(--green);  font-weight: 500; }
+.td-red    { color: var(--red);    font-weight: 500; }
+.td-amber  { color: var(--amber);  font-weight: 500; }
+.td-blue   { color: var(--blue);   font-weight: 500; }
+.td-purple { color: var(--purple); font-weight: 500; }
+.td-bold   { color: var(--text);   font-weight: 500; }
+
+/* ── LINE CHIP ── */
+.line-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.lc-green  { background: var(--green-dim);  border: 1px solid var(--green-border);  color: var(--green); }
+.lc-red    { background: var(--red-dim);    border: 1px solid var(--red-border);    color: var(--red); }
+.lc-amber  { background: var(--amber-dim);  border: 1px solid var(--amber-border);  color: var(--amber); }
+.lc-blue   { background: var(--blue-dim);   border: 1px solid var(--blue-border);   color: var(--blue); }
+.lc-purple { background: var(--purple-dim); border: 1px solid var(--purple-border); color: var(--purple); }
+.lc-muted  { background: var(--bg3); border: 1px solid var(--border2); color: var(--muted); }
+
+/* ── FLOW DIAGRAM ── */
+.flow { display: flex; align-items: stretch; gap: 0; margin: 20px 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.flow-step {
+  flex: 1;
+  padding: 18px 16px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+}
+.flow-step:last-child { border-right: none; }
+.flow-step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.flow-step-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.flow-step-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.flow-step.active { background: var(--green-dim); border-color: var(--green-border); }
+.flow-step.active .flow-step-label { color: var(--green); }
+
+/* ── TURN TYPE GRID ── */
+.turn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0; }
+.turn-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.turn-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 7px;
+}
+.turn-card p { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin: 0; }
+.t-blank   .turn-name { color: var(--muted); }
+.t-over    .turn-name { color: var(--blue); }
+.t-pair    .turn-name { color: var(--amber); }
+.t-flush   .turn-name { color: var(--purple); }
+.t-str8    .turn-name { color: var(--green); }
+.t-dynamic .turn-name { color: var(--red); }
+.t-blank   { border-left: 2px solid var(--muted2); }
+.t-over    { border-left: 2px solid var(--blue); }
+.t-pair    { border-left: 2px solid var(--amber); }
+.t-flush   { border-left: 2px solid var(--purple); }
+.t-str8    { border-left: 2px solid var(--green); }
+.t-dynamic { border-left: 2px solid var(--red); }
+
+/* ── SIZING BARS ── */
+.sizing-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.sizing-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  width: 100px;
+  flex-shrink: 0;
+}
+.sizing-track {
+  flex: 1;
+  background: var(--bg3);
+  border-radius: 3px;
+  height: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.sizing-fill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+.sf-green  { background: var(--green-dim);  color: var(--green); }
+.sf-amber  { background: var(--amber-dim);  color: var(--amber); }
+.sf-red    { background: var(--red-dim);    color: var(--red); }
+.sf-purple { background: var(--purple-dim); color: var(--purple); }
+
+/* ── HAND LINES TABLE ── */
+.hand-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hand-line:last-child { border-bottom: none; }
+.hl-seq {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #fff;
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.hl-examples { font-size: 12px; color: var(--muted); flex: 1; }
+
+/* ── CHECKLIST ── */
+.checklist { list-style: none; }
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: #b8b8c8;
+  line-height: 1.55;
+}
+.checklist li:last-child { border-bottom: none; }
+.check-box {
+  width: 16px; height: 16px;
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── ERROR ITEMS ── */
+.error-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 6px;
+  padding: 12px 18px;
+  margin-bottom: 8px;
+}
+.error-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.error-desc  { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+/* ── CHEATSHEET ── */
+.cheatsheet {
+  background: var(--bg2);
+  border: 1px solid var(--green-border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 24px 0;
+}
+.cheatsheet-header {
+  background: var(--green-dim);
+  padding: 12px 22px;
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-bottom: 1px solid var(--green-border);
+}
+.cheatsheet-body { padding: 20px 22px; }
+
+/* ── DIVIDER ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+
+/* ── PRINCIPLE BLOCK ── */
+.principle-block {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.pb-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.pb-row:last-child { border-bottom: none; }
+.pb-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 1px;
+  width: 20px;
+}
+.pb-text { font-size: 13px; color: #b8b8c8; line-height: 1.65; }
+.pb-text strong { color: var(--text); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="tag">PokerStudy · Manual Base MTT</div>
+    <h2>Bet Flop<br>→ Bet Turn</h2>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-title">Fundamentos</div>
+      <a href="#filosofia"   class="nav-link active"><span class="nav-num">01</span>Filosofía</a>
+      <a href="#proceso"     class="nav-link"><span class="nav-num">02</span>El proceso mental</a>
+      <a href="#definicion"  class="nav-link"><span class="nav-num">03</span>¿Qué es un Double Barrel?</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Construcción del barrel</div>
+      <a href="#motivos"     class="nav-link"><span class="nav-num">04</span>Motivos para apostar flop</a>
+      <a href="#plan"        class="nav-link"><span class="nav-num">05</span>Plan antes del bet</a>
+      <a href="#clasif"      class="nav-link"><span class="nav-num">06</span>Clasificación de manos</a>
+      <a href="#evolucion"   class="nav-link"><span class="nav-num">07</span>Evolución del rango</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Decisión en turn</div>
+      <a href="#turns"       class="nav-link"><span class="nav-num">08</span>Tipos de turn</a>
+      <a href="#continuar"   class="nav-link"><span class="nav-num">09</span>¿Cuándo seguir?</a>
+      <a href="#frenar"      class="nav-link"><span class="nav-num">10</span>¿Cuándo frenar?</a>
+      <a href="#sizings"     class="nav-link"><span class="nav-num">11</span>Sizings</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Aplicación</div>
+      <a href="#explot"      class="nav-link"><span class="nav-num">12</span>Explotación en micro</a>
+      <a href="#checklist"   class="nav-link"><span class="nav-num">13</span>Checklist</a>
+      <a href="#errores"     class="nav-link"><span class="nav-num">14</span>Errores frecuentes</a>
+      <a href="#framework"   class="nav-link"><span class="nav-num">15</span>Framework final</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Postflop MTT · Estrategia de Barrels
+  </div>
+  <h1>Bet Flop <span class="arrow">→</span> Bet Turn</h1>
+  <div class="hero-subtitle">Manual Base — Double Barrel en MTT</div>
+  <p class="hero-desc">
+    Principios fundamentales para construir una estrategia sólida de Double Barrel. El objetivo no es memorizar soluciones de solver, sino aprender un proceso de pensamiento aplicable a cualquier board.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">15</div>
+      <div class="hero-stat-label">Secciones</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">6</div>
+      <div class="hero-stat-label">Tipos de turn</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">5</div>
+      <div class="hero-stat-label">Líneas de mano</div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════ 01 FILOSOFÍA ═══════════════ -->
+<section class="section" id="filosofia">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <div class="section-title-wrap">
+      <h2>Filosofía</h2>
+      <p>Por qué hay que pensar desde el turn, no desde el flop</p>
+    </div>
+  </div>
+
+  <p>El error más frecuente del field consiste en decidir el flop de forma aislada. Se ve una textura, se tiene una mano, y se apuesta. Eso es jugar una calle. Los jugadores que realmente extraen EV del double barrel hacen lo opuesto.</p>
+
+  <div class="alert amber">
+    <span class="alert-icon">→</span>
+    <p><strong>Un jugador fuerte comienza por el turn.</strong> Antes de apostar el flop debe saber qué cartas seguirá apostando, cuáles frenarán su agresión y cómo cambiará el rango rival después del call.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card red">
+      <div class="card-title">Cómo piensa el field</div>
+      <p>Ve la textura del flop. Evalúa su mano. Decide si apuesta o no. El turn lo improvisa. El river también. Cada calle es una decisión aislada sin continuidad narrativa.</p>
+    </div>
+    <div class="card green">
+      <div class="card-title">Cómo piensa un jugador sólido</div>
+      <p>Visualiza el turn antes de apostar el flop. Clasifica los runouts. Define qué cartas continúa y cuáles frena. La apuesta de flop es la primera parte de un plan ya construido.</p>
+    </div>
+  </div>
+
+  <p>Este cambio de perspectiva es el núcleo del manual. Todo lo demás — sizing, selección de bluffs, lectura de turns — deriva de este principio.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 02 PROCESO ═══════════════ -->
+<section class="section" id="proceso">
+  <div class="section-header">
+    <span class="section-num blue">02</span>
+    <div class="section-title-wrap">
+      <h2>El proceso mental</h2>
+      <p>Las seis preguntas que estructuran cada decisión postflop</p>
+    </div>
+  </div>
+
+  <p>Cada apuesta debe poder responder las siguientes preguntas. Si alguna no tiene respuesta clara, la apuesta probablemente no esté bien construida.</p>
+
+  <div class="principle-block">
+    <div class="pb-row">
+      <div class="pb-num">01</div>
+      <div class="pb-text"><strong>¿Quién tiene ventaja de rango?</strong> Quién llega al flop con más manos fuertes en proporción al total de su rango. Determina quién puede apostar más amplio.</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-num">02</div>
+      <div class="pb-text"><strong>¿Quién tiene ventaja de nuts?</strong> Quién tiene la mayor concentración de manos muy fuertes (sets, two pair, nuts draws). Afecta los sizings y la polarización.</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-num">03</div>
+      <div class="pb-text"><strong>¿Qué manos peores pagan?</strong> Identifica el valor real de apostar. Si el rival no tiene draws ni second pairs que llamen, el valor es menor de lo que parece.</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-num">04</div>
+      <div class="pb-text"><strong>¿Qué manos mejores foldean?</strong> La pregunta opuesta. Si el rival nunca foldea manos que te ganan, el bluff no tiene sentido en ese spot.</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-num">05</div>
+      <div class="pb-text"><strong>¿Cómo queda el rango del rival si paga?</strong> El call del flop filtra el rango enemigo. En turn enfrentás un rango distinto y más angosto. Anticiparlo es clave.</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-num">06</div>
+      <div class="pb-text"><strong>¿Qué turns favorecen mi historia?</strong> Las cartas que llegan al turn deben ser consistentes con el rango que representás. Sin historia coherente, el barrel pierde credibilidad.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 03 DEFINICIÓN ═══════════════ -->
+<section class="section" id="definicion">
+  <div class="section-header">
+    <span class="section-num amber">03</span>
+    <div class="section-title-wrap">
+      <h2>¿Qué es un Double Barrel?</h2>
+      <p>Definición correcta y cuándo tiene sentido ejecutarlo</p>
+    </div>
+  </div>
+
+  <p>Un Double Barrel consiste en apostar el flop y volver a apostar el turn. Pero eso es solo la descripción mecánica. La definición correcta es estratégica.</p>
+
+  <div class="formula">
+    Double Barrel = apostar flop + apostar turn
+    <span class="fc">No es una obligación. Es la consecuencia de que EV(barrel turn) &gt; EV(check turn).</span>
+  </div>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-label">Condición necesaria</div>
+      <div class="metric-value mv-green" style="font-size:16px">EV barrel</div>
+      <div class="metric-sub">&gt; EV de frenar</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">No es automático</div>
+      <div class="metric-value mv-amber" style="font-size:16px">Decisión</div>
+      <div class="metric-sub">Caso a caso en turn</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Requiere plan</div>
+      <div class="metric-value mv-blue" style="font-size:16px">Previo</div>
+      <div class="metric-sub">Desde antes del flop bet</div>
+    </div>
+  </div>
+
+  <div class="alert blue">
+    <span class="alert-icon">→</span>
+    <p>El error más costoso no es no barrelar — es barrelar automáticamente porque "ya aposté flop". Cada turn es una decisión nueva con nueva información.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 04 MOTIVOS ═══════════════ -->
+<section class="section" id="motivos">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <div class="section-title-wrap">
+      <h2>Motivos para apostar flop</h2>
+      <p>Por qué apostar — y cuál es el objetivo real detrás de cada apuesta</p>
+    </div>
+  </div>
+
+  <p>Una apuesta de flop siempre responde a uno o más de los siguientes objetivos. Identificar cuál aplica a cada mano es lo que diferencia una apuesta bien construida de una automática.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Motivo</th>
+          <th>Descripción</th>
+          <th>Tipo de mano típica</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-bold">Valor</td>
+          <td>El rival paga con manos peores. Construimos pozo con equity.</td>
+          <td>Top pair+, sets, two pair</td>
+        </tr>
+        <tr>
+          <td class="td-bold">Protección</td>
+          <td>Negamos equity a draws que se completarían gratis.</td>
+          <td>Overpairs, TPTK en boards húmedos</td>
+        </tr>
+        <tr>
+          <td class="td-bold">Negación de equity</td>
+          <td>Forzamos al rival a pagar por sus outs o foldeamos su equity directamente.</td>
+          <td>Manos con showdown value en riesgo</td>
+        </tr>
+        <tr>
+          <td class="td-bold">Fold equity</td>
+          <td>El rival foldea lo suficiente para que la apuesta sea rentable sin showdown.</td>
+          <td>Bluffs y semi-bluffs</td>
+        </tr>
+        <tr>
+          <td class="td-bold">Construcción del pozo</td>
+          <td>Preparamos el sizing para poder apostar más en calles siguientes.</td>
+          <td>Manos de valor con draws en el board</td>
+        </tr>
+        <tr>
+          <td class="td-bold">Preparación de barrels</td>
+          <td>Generamos cobertura de rango para poder bluffear creíblemente en turn y river.</td>
+          <td>Bluffs con estructura futura</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p>Una misma apuesta puede cumplir varios objetivos simultáneamente. Un semi-bluff de valor puede tener fold equity, protección y construcción de pozo al mismo tiempo. La claridad en el objetivo ayuda a elegir el sizing correcto.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 05 PLAN ═══════════════ -->
+<section class="section" id="plan">
+  <div class="section-header">
+    <span class="section-num amber">05</span>
+    <div class="section-title-wrap">
+      <h2>Plan antes del flop bet</h2>
+      <p>La regla de oro: nunca apostar sin saber qué hacés en el turn</p>
+    </div>
+  </div>
+
+  <div class="alert red">
+    <span class="alert-icon">✗</span>
+    <p><strong>Nunca apostar sin plan.</strong> Si el rival paga, llegás al turn sin saber qué hacer. Eso fuerza decisiones improvisadas en la calle donde se concentra la mayor parte del EV del pot.</p>
+  </div>
+
+  <h3>El ejercicio de clasificación de runouts</h3>
+  <p>Antes de apostar el flop, imaginá que el rival paga. Ahora clasificá los posibles runouts de turn en tres categorías:</p>
+
+  <div class="grid-3">
+    <div class="card green">
+      <div class="card-title">Turns favorables</div>
+      <p>Mejoran nuestro rango, empeoran el rival, aumentan la fold equity o son consistentes con nuestra historia. <strong>Continuamos apostando.</strong></p>
+    </div>
+    <div class="card amber">
+      <div class="card-title">Turns neutros</div>
+      <p>No cambian significativamente la dinámica. Hay que evaluar sizing y frecuencia. La decisión depende del rango rival filtrado tras el call.</p>
+    </div>
+    <div class="card red">
+      <div class="card-title">Turns desfavorables</div>
+      <p>Fortalecen el rango del rival, debilitan nuestra historia o nos dejan sin fold equity. <strong>Generalmente frenamos.</strong></p>
+    </div>
+  </div>
+
+  <p>Si la mayoría de los turns posibles son desfavorables para nuestra mano, quizás el flop tampoco debía apostarse.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 06 CLASIFICACIÓN ═══════════════ -->
+<section class="section" id="clasif">
+  <div class="section-header">
+    <span class="section-num purple">06</span>
+    <div class="section-title-wrap">
+      <h2>Clasificación de manos</h2>
+      <p>Las cinco líneas posibles y qué tipo de manos entra en cada una</p>
+    </div>
+  </div>
+
+  <p>No todas las manos siguen la misma línea de apuesta. Clasificar desde el flop permite planificar el barrel de forma coherente con el rango completo.</p>
+
+  <div style="margin: 20px 0;">
+    <div class="hand-line">
+      <div class="hl-seq">
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-green">BET</span>
+      </div>
+      <div class="hl-examples">Nuts, sets, overpairs fuertes. Manos que quieren construir pozo máximo en las tres calles.</div>
+    </div>
+    <div class="hand-line">
+      <div class="hl-seq">
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-muted">CHECK</span>
+      </div>
+      <div class="hl-examples">Top pair medias, manos con showdown value que no soportan tres barrels. Frenan en river para control de pozo.</div>
+    </div>
+    <div class="hand-line">
+      <div class="hl-seq">
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-muted">CHECK</span>
+        <span class="line-chip lc-green">BET</span>
+      </div>
+      <div class="hl-examples">Delayed pressure. Manos que ganan con un barrel más tarde cuando el rival muestra debilidad al check del turn.</div>
+    </div>
+    <div class="hand-line">
+      <div class="hl-seq">
+        <span class="line-chip lc-muted">CHECK</span>
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-green">BET</span>
+      </div>
+      <div class="hl-examples">Rangos protegidos. Check del flop para equilibrar el rango. Apuesta de turn y river cuando el rival muestra debilidad.</div>
+    </div>
+    <div class="hand-line">
+      <div class="hl-seq">
+        <span class="line-chip lc-green">BET</span>
+        <span class="line-chip lc-red">FOLD</span>
+        <span class="line-chip lc-muted">—</span>
+      </div>
+      <div class="hl-examples">Bluffs de una sola calle. Sin equity suficiente para soportar un call. Si el rival paga, abandonamos la historia.</div>
+    </div>
+  </div>
+
+  <div class="alert purple">
+    <span class="alert-icon">→</span>
+    <p>Tener claridad sobre qué línea sigue cada mano <strong>antes</strong> de apostar el flop es lo que hace que el rango completo sea coherente y difícil de explotar.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 07 EVOLUCIÓN RANGO ═══════════════ -->
+<section class="section" id="evolucion">
+  <div class="section-header">
+    <span class="section-num blue">07</span>
+    <div class="section-title-wrap">
+      <h2>Evolución del rango</h2>
+      <p>Qué le ocurre al rango del rival después de pagar el flop</p>
+    </div>
+  </div>
+
+  <p>El call del flop elimina gran parte del aire del rango rival. Cuando llegamos al turn ya no enfrentamos el rango completo preflop del rival — enfrentamos un subconjunto filtrado.</p>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-label">Manos que quedan</div>
+      <div class="metric-value mv-amber" style="font-size:14px">Showdown value</div>
+      <div class="metric-sub">Pares, second pairs, top pairs débiles</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Manos que quedan</div>
+      <div class="metric-value mv-blue" style="font-size:14px">Proyectos</div>
+      <div class="metric-sub">Flush draws, straight draws, combo draws</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Manos que quedan</div>
+      <div class="metric-value mv-red" style="font-size:14px">Manos fuertes</div>
+      <div class="metric-sub">Sets, two pair, top pair fuerte</div>
+    </div>
+  </div>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>Implicancia táctica:</strong> En turn jugamos contra un rango filtrado. Los bluffs necesitan más credibilidad porque el rival ya demostró algo con el call. El valor también es más real porque los draws que pagaron están a una carta del showdown.</p>
+  </div>
+
+  <p>Conocer la composición del rango del rival después del call es lo que permite elegir correctamente si continuar o frenar, y con qué sizing hacerlo.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 08 TIPOS DE TURN ═══════════════ -->
+<section class="section" id="turns">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <div class="section-title-wrap">
+      <h2>Tipos de turn</h2>
+      <p>Cómo cada categoría de carta modifica la dinámica del pot</p>
+    </div>
+  </div>
+
+  <p>No todos los turns tienen el mismo impacto. Clasificar el turn antes de actuar es el paso más importante de la decisión en esa calle.</p>
+
+  <div class="turn-grid">
+    <div class="turn-card t-blank">
+      <div class="turn-name">Blank</div>
+      <p>Cambia poco la estructura del board. Favorece al agresor de flop porque el rango del defensor sigue siendo el mismo filtrado después del call.</p>
+    </div>
+    <div class="turn-card t-over">
+      <div class="turn-name">Overcard</div>
+      <p>Modifica la percepción del rango. Una overcard puede conectar con el rango del caller o con el nuestro según la posición y el contexto de la mano.</p>
+    </div>
+    <div class="turn-card t-pair">
+      <div class="turn-name">Pairing</div>
+      <p>Cambia la distribución de nuts. Si el board pairea, los full houses aparecen. Favorece a rangos que llegaron con triples y comprime el rango del rival.</p>
+    </div>
+    <div class="turn-card t-flush">
+      <div class="turn-name">Flush Completing</div>
+      <p>Completa colores. Si llegamos apostando en board húmedo, esta carta completa proyectos del rival. Nuestra historia debe ser coherente con tener flushes.</p>
+    </div>
+    <div class="turn-card t-str8">
+      <div class="turn-name">Straight Completing</div>
+      <p>Completa escaleras. Carta conectora que cierra draws. Similar al flush completing: si nuestro rango incluye esas manos, es una carta favorable para barrelar.</p>
+    </div>
+    <div class="turn-card t-dynamic">
+      <div class="turn-name">Dynamic Turn</div>
+      <p>Agrega nuevos proyectos al board. Puede beneficiar al caller o al preflop aggressor según qué rangos interactúan con las nuevas posibilidades.</p>
+    </div>
+  </div>
+
+  <div class="alert amber">
+    <span class="alert-icon">!</span>
+    <p>La misma carta puede ser favorable o desfavorable dependiendo del rango que representás. No existe una clasificación universal — existe la clasificación en el contexto de <em>tu rango específico</em> en ese spot.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 09 CUÁNDO SEGUIR ═══════════════ -->
+<section class="section" id="continuar">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <div class="section-title-wrap">
+      <h2>¿Cuándo seguir apostando?</h2>
+      <p>Los cinco filtros para decidir si el barrel de turn tiene EV positivo</p>
+    </div>
+  </div>
+
+  <ul class="rule-list">
+    <li>
+      <span class="ri">→</span>
+      <div><strong>El turn mejora nuestro rango.</strong> La carta es consistente con las manos fuertes que representamos. Nuestra historia gana credibilidad.</div>
+    </li>
+    <li>
+      <span class="ri">→</span>
+      <div><strong>El turn empeora el rango rival.</strong> Las draws que pagaron flop no se completaron, o las manos de showdown value del rival ahora están en peor posición relativa.</div>
+    </li>
+    <li>
+      <span class="ri">→</span>
+      <div><strong>Aumenta la fold equity.</strong> El rival tiene más razones para foldar en turn de las que tenía en flop. Los draws sin completar, las manos mediocres del rango filtrado, son targets para el barrel.</div>
+    </li>
+    <li>
+      <span class="ri">→</span>
+      <div><strong>Mejora nuestra equity bruta.</strong> Llegamos al turn con una mano que mejoró directamente — completamos draw, mejoramos par, conseguimos blocker relevante.</div>
+    </li>
+    <li>
+      <span class="ri">→</span>
+      <div><strong>El valor de la mano creció.</strong> Tenemos más valor por contra el rango filtrado del rival. El sizing puede crecer respecto al flop para construir pozo correctamente.</div>
+    </li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 10 CUÁNDO FRENAR ═══════════════ -->
+<section class="section" id="frenar">
+  <div class="section-header">
+    <span class="section-num red">10</span>
+    <div class="section-title-wrap">
+      <h2>¿Cuándo frenar?</h2>
+      <p>Las señales para abandonar el barrel y tomar la línea de check</p>
+    </div>
+  </div>
+
+  <ul class="rule-list">
+    <li>
+      <span class="ri red">✗</span>
+      <div><strong>El turn fortalece claramente el rango rival.</strong> Una carta que completa sus draws, conecta con sus overcards, o pairea sus calls de flop. Seguir apostando pierde credibilidad y EV.</div>
+    </li>
+    <li>
+      <span class="ri red">✗</span>
+      <div><strong>Perdemos blockers importantes.</strong> La carta de turn elimina blockers que justificaban el bluff original. Sin los blockers adecuados, la fold equity cae.</div>
+    </li>
+    <li>
+      <span class="ri red">✗</span>
+      <div><strong>Nuestra historia deja de ser creíble.</strong> El runout es inconsistente con el rango que representamos. El rival con pensamiento de rango reconoce la falta de coherencia.</div>
+    </li>
+    <li>
+      <span class="ri red">✗</span>
+      <div><strong>Tenemos showdown value suficiente.</strong> Hay manos peores que el rival podría llegar al showdown con nosotros. Apostar en este caso convierte una mano con valor en un bluff innecesario.</div>
+    </li>
+  </ul>
+
+  <div class="alert red">
+    <span class="alert-icon">!</span>
+    <p><strong>La disciplina para abandonar barrels malos es tan importante como la agresividad para ejecutar los buenos.</strong> El EV perdido en barrels forzados es uno de los leaks más costosos del field de microlímites.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 11 SIZINGS ═══════════════ -->
+<section class="section" id="sizings">
+  <div class="section-header">
+    <span class="section-num amber">11</span>
+    <div class="section-title-wrap">
+      <h2>Sizings</h2>
+      <p>Guía de tamaños de apuesta según textura y objetivo</p>
+    </div>
+  </div>
+
+  <p>El sizing no es una decisión estética. Es parte del mensaje que le enviamos al rival sobre la composición de nuestro rango.</p>
+
+  <div style="margin: 20px 0;">
+    <div class="sizing-row">
+      <div class="sizing-label">25–33%</div>
+      <div class="sizing-track"><div class="sizing-fill sf-green" style="width:33%">Boards secos · ventaja de rango</div></div>
+    </div>
+    <div class="sizing-row">
+      <div class="sizing-label">50%</div>
+      <div class="sizing-track"><div class="sizing-fill sf-amber" style="width:50%">Boards intermedios · equilibrio</div></div>
+    </div>
+    <div class="sizing-row">
+      <div class="sizing-label">66–100%</div>
+      <div class="sizing-track"><div class="sizing-fill sf-red" style="width:75%">Boards dinámicos · polarización · protección</div></div>
+    </div>
+    <div class="sizing-row">
+      <div class="sizing-label">Overbet</div>
+      <div class="sizing-track"><div class="sizing-fill sf-purple" style="width:95%">Ventaja de nuts clara · rangos condensados del rival</div></div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Sizing</th>
+          <th>Cuándo usarlo</th>
+          <th>Objetivo</th>
+          <th>Rangos típicos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-green td-mono">25–33%</td>
+          <td>Board seco, ventaja de rango clara, muchos bluff catchers del rival</td>
+          <td>Capturar valor fino, denegar equity barato</td>
+          <td>Overpairs en boards secos, TPTK sin draws</td>
+        </tr>
+        <tr>
+          <td class="td-amber td-mono">50%</td>
+          <td>Board intermedio, rango equilibrado de ambos lados</td>
+          <td>Balancear valor y bluffs, no sobre-informar</td>
+          <td>Top pair, draws fuertes, manos de control</td>
+        </tr>
+        <tr>
+          <td class="td-red td-mono">66–100%</td>
+          <td>Board dinámico, necesidad de protección fuerte, alta polarización</td>
+          <td>Presionar draws, polarizar rango, construir pozo</td>
+          <td>Sets, two pair, flush draws top, bluffs polarizados</td>
+        </tr>
+        <tr>
+          <td class="td-purple td-mono">Overbet</td>
+          <td>Ventaja de nuts muy clara, rival tiene rango condensado sin nuts</td>
+          <td>Máxima extracción, presión de eliminación</td>
+          <td>Nuts en board seco, full houses en board pairado</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 12 EXPLOTACIÓN ═══════════════ -->
+<section class="section" id="explot">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <div class="section-title-wrap">
+      <h2>Explotación en Microlímites</h2>
+      <p>Ajustes específicos para el field de stakes bajos</p>
+    </div>
+  </div>
+
+  <p>El field de microlímites tiene tendencias predecibles que generan oportunidades de explotación directa. Estas no reemplazan el framework general, pero sí lo ajustan.</p>
+
+  <div class="grid-2">
+    <div class="card green">
+      <div class="card-title">Tendencia: Pagan demasiado en flop</div>
+      <p>El field llama el flop con rangos amplios. Esto aumenta el valor de apostar fino. Sizing más pequeño captura más calls de manos débiles que en poblaciones regulares.</p>
+    </div>
+    <div class="card green">
+      <div class="card-title">Tendencia: Foldean más en turn</div>
+      <p>Después del call de flop, muchos jugadores de micro no saben cómo continuar y foldan draws o manos mediocres. El barrel de turn genera más fold equity de lo esperado.</p>
+    </div>
+    <div class="card amber">
+      <div class="card-title">Ajuste: Menos bluffs sin equity</div>
+      <p>Reducir la frecuencia de barrels puramente sin equity. Contra calling stations que no foldan flop, los bluffs sin outs tienen EV muy negativo. Priorizar semi-bluffs.</p>
+    </div>
+    <div class="card amber">
+      <div class="card-title">Ajuste: Mejores scare cards</div>
+      <p>Seleccionar con más cuidado las cartas de turn que justifican el barrel. Las scare cards (overcards, completers) generan más fold equity en poblaciones de micro que en regulares.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 13 CHECKLIST ═══════════════ -->
+<section class="section" id="checklist">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <div class="section-title-wrap">
+      <h2>Checklist de decisión</h2>
+      <p>Los 7 pasos para evaluar cada barrel antes de ejecutarlo</p>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">Revisá esto antes de cada apuesta de turn</div>
+    <ul class="checklist">
+      <li><div class="check-box"></div><div><strong>Ventaja de rango:</strong> ¿Quién llega con más manos fuertes en proporción a este board?</div></li>
+      <li><div class="check-box"></div><div><strong>Ventaja de nuts:</strong> ¿Quién tiene la mayor concentración de manos muy fuertes?</div></li>
+      <li><div class="check-box"></div><div><strong>Objetivo de la apuesta:</strong> ¿Es valor, fold equity, protección, o construcción de pozo?</div></li>
+      <li><div class="check-box"></div><div><strong>Rango del rival tras el call de flop:</strong> ¿Qué manos quedaron en su rango? ¿Qué salió?</div></li>
+      <li><div class="check-box"></div><div><strong>Turns favorables:</strong> ¿Qué cartas de turn me permiten seguir apostando con EV?</div></li>
+      <li><div class="check-box"></div><div><strong>Turns desfavorables:</strong> ¿Qué cartas me obligan a frenar? ¿Ya llegó alguna de ellas?</div></li>
+      <li><div class="check-box"></div><div><strong>Plan hasta river:</strong> Si el rival paga el turn, ¿qué hago en river? ¿Queda plan de barrel o tomamos showdown?</div></li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 14 ERRORES ═══════════════ -->
+<section class="section" id="errores">
+  <div class="section-header">
+    <span class="section-num red">14</span>
+    <div class="section-title-wrap">
+      <h2>Errores frecuentes</h2>
+      <p>Los seis leaks más comunes en la ejecución del double barrel</p>
+    </div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">CBet automática</div>
+    <div class="error-desc">Apostar el flop por defecto sin evaluar si el board conecta con el rango del caller, si hay ventaja de rango o si existe un objetivo claro. El flop se convierte en un gasto sin plan.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Apostar sin plan de turn</div>
+    <div class="error-desc">La apuesta de flop se hace sin haber clasificado los turnouts. Cuando llega una carta desfavorable, no hay criterio para decidir. La improvisación en turn cuesta mucho EV.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Ignorar la textura del board</div>
+    <div class="error-desc">Apostar igual en boards secos y húmedos, en boards que conectan con el rango del rival y en los que no. La textura determina la frecuencia y el sizing óptimo.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Bluffear calling stations</div>
+    <div class="error-desc">Ejecutar barrels de bluff contra jugadores que no foldan. Si el rival ha demostrado ser inelástico al bet sizing y llama amplio, los bluffs pierden todo su valor esperado.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Abandonar turns favorables</div>
+    <div class="error-desc">Frenar el barrel en cartas que en realidad favorecen nuestro rango por falta de criterio o inseguridad. Se pierde fold equity en los mejores momentos para presionar.</div>
+  </div>
+
+  <div class="error-item">
+    <div class="error-title">Triple barrel sin historia</div>
+    <div class="error-desc">Llegar al river con tres barrels cuando el runout no es consistente con el rango representado. Contra jugadores que piensan en rangos, esto resulta en calls que destruyen el EV del bluff.</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ 15 FRAMEWORK FINAL ═══════════════ -->
+<section class="section" id="framework">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <div class="section-title-wrap">
+      <h2>Framework Final</h2>
+      <p>El sistema completo resumido en seis pasos y los principios de estudio</p>
+    </div>
+  </div>
+
+  <div class="formula" style="font-size:13px; line-height:2.1;">
+    BET FLOP → BET TURN · Framework de decisión
+    <span class="fc">01 · Analizá rangos, no manos individuales.</span>
+    <span class="fc">02 · Elegí un sizing coherente con el objetivo y la textura.</span>
+    <span class="fc">03 · Imaginá el rango rival después del call de flop.</span>
+    <span class="fc">04 · Clasificá los turns antes de actuar en el flop.</span>
+    <span class="fc">05 · Continuá únicamente cuando el EV del barrel supere al check.</span>
+    <span class="fc">06 · Si no hay plan claro para el turn, generalmente el flop tampoco debía apostarse.</span>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-num">Paso 1</div>
+      <div class="flow-step-label">Rangos</div>
+      <div class="flow-step-sub">¿Quién tiene ventaja de rango y de nuts?</div>
+    </div>
+    <div class="flow-step active">
+      <div class="flow-step-num">Paso 2</div>
+      <div class="flow-step-label">Plan</div>
+      <div class="flow-step-sub">Clasificar turns antes de apostar flop</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">Paso 3</div>
+      <div class="flow-step-label">Bet flop</div>
+      <div class="flow-step-sub">Sizing según objetivo y textura</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">Paso 4</div>
+      <div class="flow-step-label">Turn</div>
+      <div class="flow-step-sub">¿Favorable, neutro o desfavorable?</div>
+    </div>
+    <div class="flow-step active">
+      <div class="flow-step-num">Paso 5</div>
+      <div class="flow-step-label">Decidir</div>
+      <div class="flow-step-sub">EV barrel vs EV check</div>
+    </div>
+  </div>
+
+  <h3>Principios de estudio antes de jugar</h3>
+  <div class="cheatsheet">
+    <div class="cheatsheet-header">Bet Flop → Bet Turn — Resumen de principios</div>
+    <div class="cheatsheet-body">
+      <ul class="rule-list">
+        <li><span class="ri">→</span><div><strong>Pensá en rangos.</strong> La mano en tu mano es solo una instancia de tu rango completo.</div></li>
+        <li><span class="ri">→</span><div><strong>Planificá desde el flop.</strong> La decisión de barrel se toma antes de apostar la primera calle.</div></li>
+        <li><span class="ri">→</span><div><strong>El turn concentra la mayor parte del EV.</strong> Es donde el rango rival está más filtrado y la fold equity es más real.</div></li>
+        <li><span class="ri amber">!</span><div><strong>No todos los bluffs deben continuar.</strong> La disciplina para frenar es tan valiosa como la agresividad para ejecutar.</div></li>
+        <li><span class="ri">→</span><div><strong>El mejor barrel es el que cuenta una historia consistente</strong> con tu rango y con el runout específico del board.</div></li>
+        <li><span class="ri red">✗</span><div><strong>Abandonar barrels malos no es debilidad.</strong> Es la consecuencia correcta de respetar el proceso de decisión.</div></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert green">
+    <span class="alert-icon">→</span>
+    <p><strong>El objetivo final no es memorizar cuándo barrelar.</strong> Es internalizar el proceso de pensamiento que, ante cualquier board y cualquier turn, te permite calcular si el EV de seguir apostando supera al de frenar. Ese proceso es el manual.</p>
+  </div>
+</section>
+
+</div><!-- /content -->
+</main>
+
+<script>
+// Active nav on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks  = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 90) current = s.id;
+  });
+  navLinks.forEach(l => {
+    l.classList.remove('active');
+    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+}, { passive: true });
+</script>
+</body>
+</html>
